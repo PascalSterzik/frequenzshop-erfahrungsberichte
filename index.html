@@ -876,6 +876,32 @@
             color: var(--text);
             white-space: pre-line;
         }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 8px 0;
+        }
+        .card-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .tag-produkt {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .tag-indikation {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .tag-erfolg {
+            background: #fce4ec;
+            color: #c62828;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
@@ -1459,12 +1485,18 @@
             displayed.forEach((entry, index) => {
                 const card = document.createElement('div');
                 card.className = 'card';
+                const tags = [];
+                if (entry.produkt) entry.produkt.forEach(p => { if (p) tags.push('<span class="card-tag tag-produkt">' + p + '</span>'); });
+                if (entry.indikation) entry.indikation.forEach(i => { if (i) tags.push('<span class="card-tag tag-indikation">' + i + '</span>'); });
+                if (entry.behandlungserfolg) tags.push('<span class="card-tag tag-erfolg">' + entry.behandlungserfolg + '</span>');
+                
                 card.innerHTML = `
                     <div class="card-header">
                         <h3>${entry.name}</h3>
                         <span class="card-date">${entry.date_original}</span>
                     </div>
                     <div class="card-condition">${entry.condition}</div>
+                    <div class="card-tags">${tags.join('')}</div>
                     <div class="card-preview">${entry.full_text.substring(0, 150)}...</div>
                     <button class="btn-view-more" data-index="${index}">Mehr lesen</button>
                 `;
