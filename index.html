@@ -192,7 +192,7 @@
         .app-header {
             background: linear-gradient(135deg, #fff 0%, #fdf8f5 100%);
             border-bottom: 1px solid var(--border);
-            padding: 12px 24px;
+            padding: 16px 24px;
             box-shadow: var(--shadow);
             z-index: 850;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -882,7 +882,7 @@
             }
 
             .app-header {
-                padding: 10px 12px;
+                padding: 14px 12px;
             }
 
             .header-logo-img {
@@ -899,10 +899,13 @@
             }
 
             .welcome-section {
-                padding: 14px 16px 0;
+                padding: 24px 16px 8px;
             }
             .welcome-text {
-                font-size: 18px;
+                font-size: 26px;
+            }
+            .welcome-subtitle {
+                font-size: 14px;
             }
             .welcome-count {
                 font-size: 13px;
@@ -944,11 +947,11 @@
                 transform: none !important; /* disable scroll hide on mobile */
             }
             .sticky-bar {
-                top: 52px !important;
+                top: 56px !important;
                 z-index: 899;
             }
             .app-container.active {
-                padding-top: 104px !important;
+                padding-top: 108px !important;
             }
         }
 
@@ -1834,9 +1837,9 @@
             var welcomeEl = document.getElementById('welcomeText');
             if (welcomeEl) {
                 if (user && user.name) {
-                    welcomeEl.textContent = 'Willkommen, ' + user.name + '!';
+                    welcomeEl.textContent = 'Willkommen, ' + user.name + '! \ud83d\udc4b';
                 } else {
-                    welcomeEl.textContent = 'Willkommen!';
+                    welcomeEl.textContent = 'Willkommen! \ud83d\udc4b';
                 }
             }
             
