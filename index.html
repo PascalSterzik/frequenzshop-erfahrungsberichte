@@ -968,6 +968,7 @@
                         type="text"
                         id="searchInput"
                         placeholder="Suche nach Beschwerden, Körperteilen, Produkten..."
+                        oninput="if(typeof renderResults==='function'){clearTimeout(window._st);window._st=setTimeout(function(){displayedCount=30;renderResults();},300);}"
                     >
                 </div>
             </div>
