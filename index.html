@@ -1384,6 +1384,26 @@
         </div>
     </div>
 
+    <!-- MOBILE STICKY BAR (hidden by default, shown on mobile when authenticated) -->
+    <div class="sticky-bar" id="stickyBar">
+        <div class="sticky-bar-inner">
+            <div class="sticky-search">
+                <span class="sticky-search-icon">🔍</span>
+                <input type="text" id="stickySearchInput" placeholder="Suche...">
+            </div>
+            <button type="button" id="stickyFilterBtn" class="sticky-filter-btn"><span>⚙</span> Filter</button>
+        </div>
+        <div id="stickyFiltersDropdown" class="sticky-filters-dropdown">
+            <div class="sticky-filters-grid">
+                <select id="stickyFilterIndikation"><option value="">Alle Indikationen</option></select>
+                <select id="stickyFilterKorperteil"><option value="">Alle Körperteile</option></select>
+                <select id="stickyFilterProdukt"><option value="">Alle Produkte</option></select>
+                <select id="stickyFilterBehandlungstyp"><option value="">Alle Typen</option></select>
+                <select id="stickyFilterBehandlungserfolg"><option value="">Alle Erfolge</option></select>
+            </div>
+        </div>
+    </div>
+
     <!-- APP SCREEN -->
     <div id="appScreen" class="app-container">
         <!-- HEADER (single, becomes sticky on scroll-up) -->
@@ -2055,6 +2075,7 @@
         // ===== MOBILE STICKY BAR + DESKTOP SIDEPANEL =====
         (function() {
             var mainSearch = document.getElementById('searchInput');
+            if (!mainSearch) { console.warn('mainSearch not found'); return; }
 
             // --- MOBILE: Sticky Bar ---
             var stickySearch = document.getElementById('stickySearchInput');
@@ -2078,9 +2099,9 @@
 
             // Helper: trigger search from any input
             function triggerSearch(value) {
-                mainSearch.value = value;
-                stickySearch.value = value;
-                sidepanelSearch.value = value;
+                if (mainSearch) mainSearch.value = value;
+                if (stickySearch) stickySearch.value = value;
+                if (sidepanelSearch) sidepanelSearch.value = value;
                 clearTimeout(window._st);
                 window._st = setTimeout(function() {
                     displayedCount = 30;
@@ -2089,45 +2110,51 @@
                 }, 300);
             }
 
-            // Sync search inputs
-            stickySearch.addEventListener('input', function() { triggerSearch(stickySearch.value); });
-            sidepanelSearch.addEventListener('input', function() { triggerSearch(sidepanelSearch.value); });
+            // Sync search inputs (with null guards)
+            if (stickySearch) stickySearch.addEventListener('input', function() { triggerSearch(stickySearch.value); });
+            if (sidepanelSearch) sidepanelSearch.addEventListener('input', function() { triggerSearch(sidepanelSearch.value); });
             mainSearch.addEventListener('input', function() {
-                stickySearch.value = mainSearch.value;
-                sidepanelSearch.value = mainSearch.value;
+                if (stickySearch) stickySearch.value = mainSearch.value;
+                if (sidepanelSearch) sidepanelSearch.value = mainSearch.value;
             });
 
             // Toggle sticky filters dropdown
-            stickyFilterBtn.addEventListener('click', function() {
-                stickyDropdown.classList.toggle('open');
-            });
+            if (stickyFilterBtn && stickyDropdown) {
+                stickyFilterBtn.addEventListener('click', function() {
+                    stickyDropdown.classList.toggle('open');
+                });
+            }
 
             // Sync filter changes across all three locations
             filterTriples.forEach(function(triple) {
+                if (!triple.main) return;
                 // Sticky → main
-                triple.sticky.addEventListener('change', function() {
+                if (triple.sticky) triple.sticky.addEventListener('change', function() {
                     triple.main.value = triple.sticky.value;
                     triple.main.dispatchEvent(new Event('change'));
                 });
                 // Sidepanel → main
-                triple.sidepanel.addEventListener('change', function() {
+                if (triple.sidepanel) triple.sidepanel.addEventListener('change', function() {
                     triple.main.value = triple.sidepanel.value;
                     triple.main.dispatchEvent(new Event('change'));
                 });
                 // Main → sync back to sticky + sidepanel
                 triple.main.addEventListener('change', function() {
-                    triple.sticky.value = triple.main.value;
-                    triple.sidepanel.value = triple.main.value;
+                    if (triple.sticky) triple.sticky.value = triple.main.value;
+                    if (triple.sidepanel) triple.sidepanel.value = triple.main.value;
                     updateStickyFilterBtnState();
                     updateSidepanelCount();
                 });
             });
 
             // Sidepanel reset button
-            sidepanelResetBtn.addEventListener('click', function() {
+            if (sidepanelResetBtn) sidepanelResetBtn.addEventListener('click', function() {
                 activeFilters = {};
                 document.querySelectorAll('.filter-select').forEach(function(s) { s.value = ''; });
-                filterTriples.forEach(function(t) { t.sticky.value = ''; t.sidepanel.value = ''; });
+                filterTriples.forEach(function(t) {
+                    if (t.sticky) t.sticky.value = '';
+                    if (t.sidepanel) t.sidepanel.value = '';
+                });
                 updateStickyFilterBtnState();
                 renderFilterTags();
                 renderResults();
@@ -2135,12 +2162,14 @@
             });
 
             function updateStickyFilterBtnState() {
+                if (!stickyFilterBtn) return;
                 var count = Object.keys(activeFilters).length;
                 stickyFilterBtn.classList.toggle('has-filters', count > 0);
                 stickyFilterBtn.innerHTML = '<span>⚙</span> Filter' + (count > 0 ? ' (' + count + ')' : '');
             }
 
             function updateSidepanelCount() {
+                if (!sidepanelCount) return;
                 if (typeof getFilteredResults === 'function') {
                     var count = getFilteredResults().length;
                     sidepanelCount.innerHTML = '<strong>' + count + '</strong> Erfahrungsberichte angezeigt';
@@ -2150,7 +2179,9 @@
             // Copy options from main filters to sticky + sidepanel
             function syncFilterOptions() {
                 filterTriples.forEach(function(triple) {
+                    if (!triple.main) return;
                     [triple.sticky, triple.sidepanel].forEach(function(el) {
+                        if (!el) return;
                         while (el.options.length > 1) el.remove(1);
                         for (var i = 1; i < triple.main.options.length; i++) {
                             var opt = document.createElement('option');
@@ -2167,7 +2198,7 @@
             // Observe main filter option changes
             var filterSyncObserver = new MutationObserver(function() { syncFilterOptions(); });
             filterTriples.forEach(function(triple) {
-                filterSyncObserver.observe(triple.main, { childList: true });
+                if (triple.main) filterSyncObserver.observe(triple.main, { childList: true });
             });
         })();
 
