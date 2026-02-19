@@ -15,18 +15,20 @@
 
         :root {
             --primary: #b2759c;
-            --primary-light: #c9909f;
+            --primary-light: #d4a5c4;
             --primary-dark: #8a5a7a;
             --secondary: #683462;
-            --background: #f8f5f9;
-            --card-bg: #ffffff;
-            --text-dark: #2d2d2d;
-            --text-light: #666666;
-            --border: #e0e0e0;
-            --success: #4caf50;
-            --info: #2196f3;
-            --shadow: 0 2px 8px rgba(107, 52, 98, 0.1);
-            --shadow-lg: 0 8px 24px rgba(107, 52, 98, 0.15);
+            --background: #faf6f4;
+            --card-bg: #fffcfa;
+            --text-dark: #3a2f35;
+            --text-light: #7a6e75;
+            --border: #e8ddd5;
+            --success: #6dae72;
+            --info: #7ba7cc;
+            --shadow: 0 2px 12px rgba(107, 52, 98, 0.08);
+            --shadow-lg: 0 8px 32px rgba(107, 52, 98, 0.12);
+            --accent-warm: #f0e6df;
+            --accent-glow: linear-gradient(135deg, #fdf6f0 0%, #f5ebe3 50%, #f0e0d6 100%);
         }
 
         html, body {
@@ -34,6 +36,9 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--background);
             color: var(--text-dark);
+        }
+        body.authenticated {
+            background: var(--background);
         }
 
         /* AUTH SCREEN */
@@ -185,7 +190,7 @@
 
         /* HEADER */
         .app-header {
-            background: white;
+            background: linear-gradient(135deg, #fff 0%, #fdf8f5 100%);
             border-bottom: 1px solid var(--border);
             padding: 12px 24px;
             box-shadow: var(--shadow);
@@ -258,18 +263,36 @@
         .welcome-section {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px 24px 0;
+            padding: 32px 24px 24px;
+            text-align: center;
         }
         .welcome-text {
-            font-size: 22px;
-            font-weight: 600;
+            font-size: 32px;
+            font-weight: 700;
             color: var(--secondary);
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        .welcome-subtitle {
+            font-size: 17px;
+            color: var(--text-light);
+            margin-bottom: 16px;
+            line-height: 1.5;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .welcome-count {
+            display: inline-block;
             font-size: 14px;
-            color: var(--text-light);
-            margin-bottom: 0;
+            color: var(--primary-dark);
+            background: var(--accent-warm);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .welcome-count strong {
+            color: var(--secondary);
         }
 
         /* MAIN CONTENT */
@@ -515,7 +538,7 @@
         }
 
         .card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 8px;
             padding: 20px;
             box-shadow: var(--shadow);
@@ -911,12 +934,18 @@
                 right: 10px;
             }
 
-            /* On mobile: header is above the sticky search bar */
-            .app-header.sticky {
+            /* On mobile: header always fixed at top, search bar below it */
+            .app-header {
+                position: fixed !important;
+                top: 0;
+                left: 0;
+                right: 0;
                 z-index: 900;
+                transform: none !important; /* disable scroll hide on mobile */
             }
             .sticky-bar {
                 top: 52px !important;
+                z-index: 899;
             }
             .app-container.active {
                 padding-top: 104px !important;
@@ -1028,8 +1057,8 @@
             left: 0;
             right: 0;
             z-index: 900;
-            background: white;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+            background: linear-gradient(135deg, #fff 0%, #fdf8f5 100%);
+            box-shadow: 0 2px 12px rgba(107,52,98,0.08);
             padding: 10px 12px;
             display: none; /* hidden on desktop by default */
         }
@@ -1135,7 +1164,7 @@
                 left: 0;
                 bottom: 0;
                 width: 280px;
-                background: white;
+                background: linear-gradient(180deg, #fffcfa 0%, #faf5f0 100%);
                 border-right: 1px solid var(--border);
                 box-shadow: 2px 0 12px rgba(0,0,0,0.06);
                 z-index: 800;
@@ -1324,7 +1353,7 @@
         <div class="auth-box">
             <div class="auth-header">
                 <h1>Frequenzshop</h1>
-                <p>Gesundheit ist die Folge einer harmonischen Schwingung</p>
+                <p>Entdecke echte Erfahrungsberichte von Anwendern</p>
             </div>
 
             <div class="auth-tabs">
@@ -1357,11 +1386,11 @@
             <form id="loginForm" class="auth-form active">
                 <div class="form-group">
                     <label for="loginEmail">E-Mail</label>
-                    <input type="email" id="loginEmail" placeholder="ihre@email.de" required>
+                    <input type="email" id="loginEmail" placeholder="ihre@email.de" required autocomplete="email" inputmode="email">
                 </div>
                 <div class="form-group">
                     <label for="loginPassword">Passwort</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn-primary">Anmelden</button>
             </form>
@@ -1420,7 +1449,8 @@
         <!-- WELCOME (below header, not sticky) -->
         <div id="welcomeSection" class="welcome-section">
             <p class="welcome-text" id="welcomeText"></p>
-            <p class="welcome-count"><span class="result-count">829</span> Erfahrungsberichte von echten Anwendern</p>
+            <p class="welcome-subtitle" id="welcomeSubtitle">Stöbere durch echte Berichte von Anwendern und entdecke, wie Frequenztherapie anderen geholfen hat.</p>
+            <p class="welcome-count"><strong><span class="result-count">829</span></strong> Erfahrungsberichte zum Entdecken</p>
         </div>
 
         <!-- MAIN -->
@@ -1715,16 +1745,16 @@
 
             document.getElementById('loginForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value.trim();
                 await login(email, password);
             });
 
             document.getElementById('registerForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const name = document.getElementById('registerName').value;
-                const email = document.getElementById('registerEmail').value;
-                const password = document.getElementById('registerPassword').value;
+                const name = document.getElementById('registerName').value.trim();
+                const email = document.getElementById('registerEmail').value.trim();
+                const password = document.getElementById('registerPassword').value.trim();
                 await register(name, email, password);
             });
 
@@ -1801,9 +1831,13 @@
             document.getElementById('appScreen').classList.add('active');
             
             // Set welcome text
-            if (user && user.name) {
-                var welcomeEl = document.getElementById('welcomeText');
-                if (welcomeEl) welcomeEl.textContent = 'Willkommen, ' + user.name + '!';
+            var welcomeEl = document.getElementById('welcomeText');
+            if (welcomeEl) {
+                if (user && user.name) {
+                    welcomeEl.textContent = 'Willkommen, ' + user.name + '!';
+                } else {
+                    welcomeEl.textContent = 'Willkommen!';
+                }
             }
             
             initializeApp();
