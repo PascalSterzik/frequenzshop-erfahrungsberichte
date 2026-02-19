@@ -1437,10 +1437,10 @@
         function getFilteredResults() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             return DATA.entries.filter(entry => {
-                const matchesSearch = !searchTerm || 
-                    entry.full_text.toLowerCase().includes(searchTerm) ||
-                    entry.name.toLowerCase().includes(searchTerm) ||
-                    entry.condition.toLowerCase().includes(searchTerm);
+                const matchesSearch = !searchTerm ||
+                    (entry.full_text || '').toLowerCase().includes(searchTerm) ||
+                    (entry.name || '').toLowerCase().includes(searchTerm) ||
+                    (entry.condition || '').toLowerCase().includes(searchTerm);
 
                 const matchesFilters = Object.entries(activeFilters).every(([filterName, filterValue]) => {
                     const fieldName = filterName === 'indikation' ? 'indikation' :
