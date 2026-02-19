@@ -847,9 +847,31 @@
             </div>
 
             <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Anmelden</button>
-                <button class="auth-tab" data-tab="register">Registrieren</button>
+                <button type="button" class="auth-tab active" data-tab="login">Anmelden</button>
+                <button type="button" class="auth-tab" data-tab="register">Registrieren</button>
             </div>
+            <script>
+            // Inline tab switching - runs immediately, no dependencies
+            (function() {
+                var tabs = document.querySelectorAll('.auth-tab');
+                for (var i = 0; i < tabs.length; i++) {
+                    tabs[i].onclick = function(e) {
+                        var target = e.currentTarget;
+                        var tabName = target.getAttribute('data-tab');
+                        var allTabs = document.querySelectorAll('.auth-tab');
+                        var allForms = document.querySelectorAll('.auth-form');
+                        for (var j = 0; j < allTabs.length; j++) allTabs[j].classList.remove('active');
+                        for (var k = 0; k < allForms.length; k++) allForms[k].classList.remove('active');
+                        target.classList.add('active');
+                        var form = document.getElementById(tabName + 'Form');
+                        if (form) form.classList.add('active');
+                        // Clear any error/success messages
+                        var msgs = document.querySelectorAll('.form-message');
+                        for (var m = 0; m < msgs.length; m++) msgs[m].remove();
+                    };
+                }
+            })();
+            </script>
 
             <form id="loginForm" class="auth-form active">
                 <div class="form-group">
