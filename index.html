@@ -945,10 +945,140 @@
             background: #fce4ec;
             color: #c62828;
         }
+
+        /* STICKY BAR */
+        .sticky-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 900;
+            background: white;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            padding: 10px 16px;
+        }
+        .sticky-bar.visible {
+            transform: translateY(0);
+        }
+        .sticky-bar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .sticky-search {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 12px;
+            height: 40px;
+        }
+        .sticky-search input {
+            flex: 1;
+            border: none;
+            background: none;
+            font-size: 14px;
+            outline: none;
+            padding: 0 8px;
+            color: var(--text-dark);
+        }
+        .sticky-search .search-icon {
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .sticky-filter-btn {
+            height: 40px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .sticky-filter-btn:hover {
+            background: var(--background);
+        }
+        .sticky-filter-btn.has-filters {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .sticky-filters-dropdown {
+            display: none;
+            padding: 12px 0 4px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .sticky-filters-dropdown.open {
+            display: block;
+        }
+        .sticky-filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+        }
+        .sticky-filters-grid select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text);
+            background: var(--background);
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .sticky-filters-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .sticky-bar {
+                padding: 8px 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .sticky-filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
 <body>
+    <!-- STICKY BAR -->
+    <div id="stickyBar" class="sticky-bar">
+        <div class="sticky-bar-inner">
+            <div class="sticky-search">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="stickySearchInput" placeholder="Suche...">
+            </div>
+            <button type="button" id="stickyFilterBtn" class="sticky-filter-btn">
+                <span>⚙</span> Filter
+            </button>
+        </div>
+        <div id="stickyFiltersDropdown" class="sticky-filters-dropdown">
+            <div class="sticky-filters-grid">
+                <select id="stickyFilterIndikation"><option value="">Alle Indikationen</option></select>
+                <select id="stickyFilterKorperteil"><option value="">Alle Körperteile</option></select>
+                <select id="stickyFilterProdukt"><option value="">Alle Produkte</option></select>
+                <select id="stickyFilterBehandlungstyp"><option value="">Alle Typen</option></select>
+                <select id="stickyFilterBehandlungserfolg"><option value="">Alle Erfolge</option></select>
+            </div>
+        </div>
+    </div>
+
     <!-- AUTH SCREEN -->
     <div id="authScreen" class="auth-container">
         <div class="auth-box">
@@ -1634,6 +1764,131 @@
                 }
             });
         });
+
+        // ===== STICKY BAR =====
+        (function() {
+            var stickyBar = document.getElementById('stickyBar');
+            var stickySearch = document.getElementById('stickySearchInput');
+            var stickyFilterBtn = document.getElementById('stickyFilterBtn');
+            var stickyDropdown = document.getElementById('stickyFiltersDropdown');
+            var mainSearch = document.getElementById('searchInput');
+            var searchSection = document.querySelector('.search-container');
+
+            var lastScrollY = 0;
+            var scrollUpDistance = 0;
+            var isVisible = false;
+            var THRESHOLD = 80; // px of upward scroll needed before showing
+
+            // Sync sticky search ↔ main search
+            stickySearch.addEventListener('input', function() {
+                mainSearch.value = stickySearch.value;
+                clearTimeout(window._st);
+                window._st = setTimeout(function() {
+                    displayedCount = 30;
+                    if (typeof renderResults === 'function') renderResults();
+                }, 300);
+            });
+
+            // Sync main search → sticky when typing in main
+            mainSearch.addEventListener('input', function() {
+                stickySearch.value = mainSearch.value;
+            });
+
+            // Toggle sticky filters dropdown
+            stickyFilterBtn.addEventListener('click', function() {
+                stickyDropdown.classList.toggle('open');
+            });
+
+            // Populate sticky filters after main filters are populated
+            var origPopulateSelect = window.populateSelect;
+
+            // Sync sticky filter selects with main filter selects
+            var filterPairs = [
+                ['stickyFilterIndikation', 'filterIndikation'],
+                ['stickyFilterKorperteil', 'filterKorperteil'],
+                ['stickyFilterProdukt', 'filterProdukt'],
+                ['stickyFilterBehandlungstyp', 'filterBehandlungstyp'],
+                ['stickyFilterBehandlungserfolg', 'filterBehandlungserfolg']
+            ];
+
+            // When a sticky filter changes, sync to main and trigger filter
+            filterPairs.forEach(function(pair) {
+                var stickyEl = document.getElementById(pair[0]);
+                var mainEl = document.getElementById(pair[1]);
+                stickyEl.addEventListener('change', function() {
+                    mainEl.value = stickyEl.value;
+                    mainEl.dispatchEvent(new Event('change'));
+                });
+                // Sync main → sticky
+                mainEl.addEventListener('change', function() {
+                    stickyEl.value = mainEl.value;
+                    updateStickyFilterBtnState();
+                });
+            });
+
+            function updateStickyFilterBtnState() {
+                var hasActive = Object.keys(activeFilters).length > 0;
+                stickyFilterBtn.classList.toggle('has-filters', hasActive);
+                var count = Object.keys(activeFilters).length;
+                stickyFilterBtn.innerHTML = '<span>⚙</span> Filter' + (count > 0 ? ' (' + count + ')' : '');
+            }
+
+            // Copy options from main filters to sticky filters
+            function syncFilterOptions() {
+                filterPairs.forEach(function(pair) {
+                    var stickyEl = document.getElementById(pair[0]);
+                    var mainEl = document.getElementById(pair[1]);
+                    var firstOpt = stickyEl.options[0].textContent;
+                    while (stickyEl.options.length > 1) stickyEl.remove(1);
+                    for (var i = 1; i < mainEl.options.length; i++) {
+                        var opt = document.createElement('option');
+                        opt.value = mainEl.options[i].value;
+                        opt.textContent = mainEl.options[i].textContent;
+                        stickyEl.appendChild(opt);
+                    }
+                    stickyEl.value = mainEl.value;
+                });
+            }
+            // Hook into populateFilters by observing main filter changes
+            var filterSyncObserver = new MutationObserver(function() { syncFilterOptions(); });
+            filterPairs.forEach(function(pair) {
+                var mainEl = document.getElementById(pair[1]);
+                filterSyncObserver.observe(mainEl, { childList: true });
+            });
+
+            // Scroll handler
+            window.addEventListener('scroll', function() {
+                var currentY = window.scrollY;
+                var searchRect = searchSection ? searchSection.getBoundingClientRect() : null;
+                var searchHidden = searchRect ? searchRect.bottom < 0 : currentY > 300;
+
+                if (currentY < lastScrollY) {
+                    // Scrolling UP
+                    scrollUpDistance += (lastScrollY - currentY);
+                    if (scrollUpDistance > THRESHOLD && searchHidden && !isVisible) {
+                        stickyBar.classList.add('visible');
+                        isVisible = true;
+                    }
+                } else {
+                    // Scrolling DOWN
+                    scrollUpDistance = 0;
+                    if (isVisible) {
+                        stickyBar.classList.remove('visible');
+                        stickyDropdown.classList.remove('open');
+                        isVisible = false;
+                    }
+                }
+
+                // Hide if original search is visible again
+                if (!searchHidden && isVisible) {
+                    stickyBar.classList.remove('visible');
+                    stickyDropdown.classList.remove('open');
+                    isVisible = false;
+                }
+
+                lastScrollY = currentY;
+            }, { passive: true });
+        })();
 
         // ===== INIT =====
         setupAuth();
