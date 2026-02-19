@@ -946,7 +946,7 @@
             color: #c62828;
         }
 
-        /* STICKY BAR */
+        /* ===== MOBILE: STICKY BAR (always visible) ===== */
         .sticky-bar {
             position: fixed;
             top: 0;
@@ -955,42 +955,44 @@
             z-index: 900;
             background: white;
             box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-            transform: translateY(-100%);
-            transition: transform 0.3s ease;
-            padding: 10px 16px;
-        }
-        .sticky-bar.visible {
-            transform: translateY(0);
+            padding: 10px 12px;
+            display: none; /* hidden on desktop by default */
         }
         .sticky-bar-inner {
-            max-width: 1200px;
-            margin: 0 auto;
             display: flex;
             gap: 8px;
             align-items: center;
         }
         .sticky-search {
             flex: 1;
+            position: relative;
             display: flex;
             align-items: center;
             background: var(--background);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 0 12px;
             height: 40px;
+            overflow: hidden;
+        }
+        .sticky-search .sticky-search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 1;
         }
         .sticky-search input {
-            flex: 1;
+            width: 100%;
+            height: 100%;
             border: none;
             background: none;
             font-size: 14px;
             outline: none;
-            padding: 0 8px;
+            padding: 0 12px 0 34px;
             color: var(--text-dark);
-        }
-        .sticky-search .search-icon {
-            font-size: 14px;
-            flex-shrink: 0;
+            font-family: 'Inter', sans-serif;
         }
         .sticky-filter-btn {
             height: 40px;
@@ -1007,6 +1009,7 @@
             gap: 6px;
             white-space: nowrap;
             transition: all 0.2s;
+            flex-shrink: 0;
         }
         .sticky-filter-btn:hover {
             background: var(--background);
@@ -1018,16 +1021,14 @@
         }
         .sticky-filters-dropdown {
             display: none;
-            padding: 12px 0 4px;
-            max-width: 1200px;
-            margin: 0 auto;
+            padding: 10px 0 2px;
         }
         .sticky-filters-dropdown.open {
             display: block;
         }
         .sticky-filters-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
         }
         .sticky-filters-grid select {
@@ -1039,16 +1040,162 @@
             color: var(--text);
             background: var(--background);
             cursor: pointer;
+            font-family: 'Inter', sans-serif;
         }
+
+        /* ===== DESKTOP: SIDEPANEL ===== */
+        .sidepanel {
+            display: none; /* hidden on mobile */
+        }
+
+        @media (min-width: 769px) {
+            /* Hide sticky bar on desktop */
+            .sticky-bar { display: none !important; }
+
+            /* Show sidepanel on desktop */
+            .sidepanel {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 280px;
+                background: white;
+                border-right: 1px solid var(--border);
+                box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+                z-index: 800;
+                overflow-y: auto;
+                padding: 24px 20px;
+            }
+            .sidepanel-logo {
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--secondary);
+                margin-bottom: 4px;
+            }
+            .sidepanel-subtitle {
+                font-size: 12px;
+                color: var(--text-light);
+                margin-bottom: 20px;
+                padding-bottom: 16px;
+                border-bottom: 1px solid var(--border);
+            }
+            .sidepanel-search {
+                position: relative;
+                margin-bottom: 20px;
+            }
+            .sidepanel-search input {
+                width: 100%;
+                padding: 10px 12px 10px 36px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 14px;
+                background: var(--background);
+                font-family: 'Inter', sans-serif;
+                transition: all 0.2s;
+            }
+            .sidepanel-search input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(178, 117, 156, 0.1);
+            }
+            .sidepanel-search .search-icon {
+                position: absolute;
+                left: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 14px;
+                color: var(--text-light);
+                pointer-events: none;
+            }
+            .sidepanel-section-title {
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: var(--text-light);
+                margin-bottom: 10px;
+            }
+            .sidepanel-filter-group {
+                margin-bottom: 14px;
+            }
+            .sidepanel-filter-group label {
+                display: block;
+                font-size: 12px;
+                font-weight: 500;
+                color: var(--text-dark);
+                margin-bottom: 4px;
+            }
+            .sidepanel-filter-group select {
+                width: 100%;
+                padding: 8px 10px;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                font-size: 13px;
+                color: var(--text);
+                background: var(--background);
+                cursor: pointer;
+                font-family: 'Inter', sans-serif;
+                transition: border-color 0.2s;
+            }
+            .sidepanel-filter-group select:focus {
+                outline: none;
+                border-color: var(--primary);
+            }
+            .sidepanel-reset {
+                width: 100%;
+                padding: 8px;
+                margin-top: 6px;
+                background: var(--background);
+                color: var(--text-light);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                font-size: 12px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-family: 'Inter', sans-serif;
+            }
+            .sidepanel-reset:hover {
+                background: var(--border);
+                color: var(--text-dark);
+            }
+            .sidepanel-count {
+                margin-top: 16px;
+                padding-top: 16px;
+                border-top: 1px solid var(--border);
+                font-size: 13px;
+                color: var(--text-light);
+                text-align: center;
+            }
+            .sidepanel-count strong {
+                color: var(--secondary);
+            }
+
+            /* Push main content to the right on desktop */
+            .app-container.active {
+                margin-left: 280px;
+            }
+
+            /* Hide original search + filters in main area on desktop */
+            .search-container { display: none; }
+            .filters-section { display: none; }
+        }
+
+        /* Mobile: show sticky bar, add top padding for fixed bar */
         @media (max-width: 768px) {
+            .sticky-bar { display: block; }
+            .app-container.active { padding-top: 62px; }
+
+            /* Hide original search + filters on mobile too (sticky bar replaces them) */
+            .search-container { display: none; }
+            .filters-section { display: none; }
+
             .sticky-filters-grid {
                 grid-template-columns: 1fr 1fr;
             }
-            .sticky-bar {
-                padding: 8px 12px;
-            }
         }
-        @media (max-width: 480px) {
+        @media (max-width: 400px) {
             .sticky-filters-grid {
                 grid-template-columns: 1fr;
             }
@@ -1057,11 +1204,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
 <body>
-    <!-- STICKY BAR -->
+    <!-- STICKY BAR (mobile only) -->
     <div id="stickyBar" class="sticky-bar">
         <div class="sticky-bar-inner">
             <div class="sticky-search">
-                <span class="search-icon">🔍</span>
+                <span class="sticky-search-icon">🔍</span>
                 <input type="text" id="stickySearchInput" placeholder="Suche...">
             </div>
             <button type="button" id="stickyFilterBtn" class="sticky-filter-btn">
@@ -1077,6 +1224,39 @@
                 <select id="stickyFilterBehandlungserfolg"><option value="">Alle Erfolge</option></select>
             </div>
         </div>
+    </div>
+
+    <!-- SIDEPANEL (desktop only) -->
+    <div id="sidepanel" class="sidepanel">
+        <div class="sidepanel-logo">Frequenzshop</div>
+        <div class="sidepanel-subtitle">Erfahrungsberichte durchsuchen</div>
+        <div class="sidepanel-search">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="sidepanelSearchInput" placeholder="Suche nach Beschwerden, Produkten...">
+        </div>
+        <div class="sidepanel-section-title">Filter</div>
+        <div class="sidepanel-filter-group">
+            <label>Indikation</label>
+            <select id="sidepanelFilterIndikation"><option value="">Alle Indikationen</option></select>
+        </div>
+        <div class="sidepanel-filter-group">
+            <label>Körperteil</label>
+            <select id="sidepanelFilterKorperteil"><option value="">Alle Körperteile</option></select>
+        </div>
+        <div class="sidepanel-filter-group">
+            <label>Produkt</label>
+            <select id="sidepanelFilterProdukt"><option value="">Alle Produkte</option></select>
+        </div>
+        <div class="sidepanel-filter-group">
+            <label>Behandlungstyp</label>
+            <select id="sidepanelFilterBehandlungstyp"><option value="">Alle Typen</option></select>
+        </div>
+        <div class="sidepanel-filter-group">
+            <label>Behandlungserfolg</label>
+            <select id="sidepanelFilterBehandlungserfolg"><option value="">Alle Erfolge</option></select>
+        </div>
+        <button type="button" id="sidepanelResetBtn" class="sidepanel-reset">Filter zurücksetzen</button>
+        <div id="sidepanelCount" class="sidepanel-count"></div>
     </div>
 
     <!-- AUTH SCREEN -->
@@ -1765,33 +1945,49 @@
             });
         });
 
-        // ===== STICKY BAR =====
+        // ===== MOBILE STICKY BAR + DESKTOP SIDEPANEL =====
         (function() {
-            var stickyBar = document.getElementById('stickyBar');
+            var mainSearch = document.getElementById('searchInput');
+
+            // --- MOBILE: Sticky Bar ---
             var stickySearch = document.getElementById('stickySearchInput');
             var stickyFilterBtn = document.getElementById('stickyFilterBtn');
             var stickyDropdown = document.getElementById('stickyFiltersDropdown');
-            var mainSearch = document.getElementById('searchInput');
-            var searchSection = document.querySelector('.search-container');
 
-            var lastScrollY = 0;
-            var scrollUpDistance = 0;
-            var isVisible = false;
-            var THRESHOLD = 80; // px of upward scroll needed before showing
+            // --- DESKTOP: Sidepanel ---
+            var sidepanelSearch = document.getElementById('sidepanelSearchInput');
+            var sidepanelResetBtn = document.getElementById('sidepanelResetBtn');
+            var sidepanelCount = document.getElementById('sidepanelCount');
 
-            // Sync sticky search ↔ main search
-            stickySearch.addEventListener('input', function() {
-                mainSearch.value = stickySearch.value;
+            // Filter element mappings: [sticky, sidepanel, main]
+            var filterNames = ['Indikation', 'Korperteil', 'Produkt', 'Behandlungstyp', 'Behandlungserfolg'];
+            var filterTriples = filterNames.map(function(name) {
+                return {
+                    sticky: document.getElementById('stickyFilter' + name),
+                    sidepanel: document.getElementById('sidepanelFilter' + name),
+                    main: document.getElementById('filter' + name)
+                };
+            });
+
+            // Helper: trigger search from any input
+            function triggerSearch(value) {
+                mainSearch.value = value;
+                stickySearch.value = value;
+                sidepanelSearch.value = value;
                 clearTimeout(window._st);
                 window._st = setTimeout(function() {
                     displayedCount = 30;
                     if (typeof renderResults === 'function') renderResults();
+                    updateSidepanelCount();
                 }, 300);
-            });
+            }
 
-            // Sync main search → sticky when typing in main
+            // Sync search inputs
+            stickySearch.addEventListener('input', function() { triggerSearch(stickySearch.value); });
+            sidepanelSearch.addEventListener('input', function() { triggerSearch(sidepanelSearch.value); });
             mainSearch.addEventListener('input', function() {
                 stickySearch.value = mainSearch.value;
+                sidepanelSearch.value = mainSearch.value;
             });
 
             // Toggle sticky filters dropdown
@@ -1799,95 +1995,73 @@
                 stickyDropdown.classList.toggle('open');
             });
 
-            // Populate sticky filters after main filters are populated
-            var origPopulateSelect = window.populateSelect;
-
-            // Sync sticky filter selects with main filter selects
-            var filterPairs = [
-                ['stickyFilterIndikation', 'filterIndikation'],
-                ['stickyFilterKorperteil', 'filterKorperteil'],
-                ['stickyFilterProdukt', 'filterProdukt'],
-                ['stickyFilterBehandlungstyp', 'filterBehandlungstyp'],
-                ['stickyFilterBehandlungserfolg', 'filterBehandlungserfolg']
-            ];
-
-            // When a sticky filter changes, sync to main and trigger filter
-            filterPairs.forEach(function(pair) {
-                var stickyEl = document.getElementById(pair[0]);
-                var mainEl = document.getElementById(pair[1]);
-                stickyEl.addEventListener('change', function() {
-                    mainEl.value = stickyEl.value;
-                    mainEl.dispatchEvent(new Event('change'));
+            // Sync filter changes across all three locations
+            filterTriples.forEach(function(triple) {
+                // Sticky → main
+                triple.sticky.addEventListener('change', function() {
+                    triple.main.value = triple.sticky.value;
+                    triple.main.dispatchEvent(new Event('change'));
                 });
-                // Sync main → sticky
-                mainEl.addEventListener('change', function() {
-                    stickyEl.value = mainEl.value;
+                // Sidepanel → main
+                triple.sidepanel.addEventListener('change', function() {
+                    triple.main.value = triple.sidepanel.value;
+                    triple.main.dispatchEvent(new Event('change'));
+                });
+                // Main → sync back to sticky + sidepanel
+                triple.main.addEventListener('change', function() {
+                    triple.sticky.value = triple.main.value;
+                    triple.sidepanel.value = triple.main.value;
                     updateStickyFilterBtnState();
+                    updateSidepanelCount();
                 });
+            });
+
+            // Sidepanel reset button
+            sidepanelResetBtn.addEventListener('click', function() {
+                activeFilters = {};
+                document.querySelectorAll('.filter-select').forEach(function(s) { s.value = ''; });
+                filterTriples.forEach(function(t) { t.sticky.value = ''; t.sidepanel.value = ''; });
+                updateStickyFilterBtnState();
+                renderFilterTags();
+                renderResults();
+                updateSidepanelCount();
             });
 
             function updateStickyFilterBtnState() {
-                var hasActive = Object.keys(activeFilters).length > 0;
-                stickyFilterBtn.classList.toggle('has-filters', hasActive);
                 var count = Object.keys(activeFilters).length;
+                stickyFilterBtn.classList.toggle('has-filters', count > 0);
                 stickyFilterBtn.innerHTML = '<span>⚙</span> Filter' + (count > 0 ? ' (' + count + ')' : '');
             }
 
-            // Copy options from main filters to sticky filters
-            function syncFilterOptions() {
-                filterPairs.forEach(function(pair) {
-                    var stickyEl = document.getElementById(pair[0]);
-                    var mainEl = document.getElementById(pair[1]);
-                    var firstOpt = stickyEl.options[0].textContent;
-                    while (stickyEl.options.length > 1) stickyEl.remove(1);
-                    for (var i = 1; i < mainEl.options.length; i++) {
-                        var opt = document.createElement('option');
-                        opt.value = mainEl.options[i].value;
-                        opt.textContent = mainEl.options[i].textContent;
-                        stickyEl.appendChild(opt);
-                    }
-                    stickyEl.value = mainEl.value;
-                });
+            function updateSidepanelCount() {
+                if (typeof getFilteredResults === 'function') {
+                    var count = getFilteredResults().length;
+                    sidepanelCount.innerHTML = '<strong>' + count + '</strong> Ergebnisse';
+                }
             }
-            // Hook into populateFilters by observing main filter changes
+
+            // Copy options from main filters to sticky + sidepanel
+            function syncFilterOptions() {
+                filterTriples.forEach(function(triple) {
+                    [triple.sticky, triple.sidepanel].forEach(function(el) {
+                        while (el.options.length > 1) el.remove(1);
+                        for (var i = 1; i < triple.main.options.length; i++) {
+                            var opt = document.createElement('option');
+                            opt.value = triple.main.options[i].value;
+                            opt.textContent = triple.main.options[i].textContent;
+                            el.appendChild(opt);
+                        }
+                        el.value = triple.main.value;
+                    });
+                });
+                updateSidepanelCount();
+            }
+
+            // Observe main filter option changes
             var filterSyncObserver = new MutationObserver(function() { syncFilterOptions(); });
-            filterPairs.forEach(function(pair) {
-                var mainEl = document.getElementById(pair[1]);
-                filterSyncObserver.observe(mainEl, { childList: true });
+            filterTriples.forEach(function(triple) {
+                filterSyncObserver.observe(triple.main, { childList: true });
             });
-
-            // Scroll handler
-            window.addEventListener('scroll', function() {
-                var currentY = window.scrollY;
-                var searchRect = searchSection ? searchSection.getBoundingClientRect() : null;
-                var searchHidden = searchRect ? searchRect.bottom < 0 : currentY > 300;
-
-                if (currentY < lastScrollY) {
-                    // Scrolling UP
-                    scrollUpDistance += (lastScrollY - currentY);
-                    if (scrollUpDistance > THRESHOLD && searchHidden && !isVisible) {
-                        stickyBar.classList.add('visible');
-                        isVisible = true;
-                    }
-                } else {
-                    // Scrolling DOWN
-                    scrollUpDistance = 0;
-                    if (isVisible) {
-                        stickyBar.classList.remove('visible');
-                        stickyDropdown.classList.remove('open');
-                        isVisible = false;
-                    }
-                }
-
-                // Hide if original search is visible again
-                if (!searchHidden && isVisible) {
-                    stickyBar.classList.remove('visible');
-                    stickyDropdown.classList.remove('open');
-                    isVisible = false;
-                }
-
-                lastScrollY = currentY;
-            }, { passive: true });
         })();
 
         // ===== INIT =====
