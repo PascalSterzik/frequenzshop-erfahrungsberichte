@@ -1017,10 +1017,10 @@
         // SUPABASE CONFIGURATION
         const SUPABASE_URL = 'https://pdwafosfwvwgmwhanvqy.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkd2Fmb3Nmd3Z3Z213aGFudnF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MTQ3ODMsImV4cCI6MjA4NzA5MDc4M30.R2mPIrpmurjpL58es-1ZjR0mtjY2cJBD0EV4H9ORyIo';
-        let supabase;
+        var supabaseClient = null;
         
         if (window.supabase) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
 
         // EMBEDDED DATA - MINIFIED JSON
