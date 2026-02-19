@@ -1117,22 +1117,7 @@
 
         // ===== AUTH SETUP =====
         function setupAuth() {
-            checkSession();
-
-            supabase.auth.onAuthStateChange((event, session) => {
-                if (session) {
-                    currentUser = {
-                        id: session.user.id,
-                        email: session.user.email,
-                        name: session.user.user_metadata?.vorname || session.user.email.split('@')[0]
-                    };
-                    showApp(currentUser);
-                } else {
-                    currentUser = null;
-                    showAuth();
-                }
-            });
-
+            // 1. Register DOM event listeners FIRST (always works, even if Supabase fails)
             document.querySelectorAll('.auth-tab').forEach(tab => {
                 tab.addEventListener('click', (e) => {
                     clearMessages();
@@ -1173,9 +1158,35 @@
                     }
                 });
             }
+
+            // 2. Supabase auth setup (with error handling)
+            if (!supabase) {
+                console.error('Supabase client not initialized');
+                return;
+            }
+
+            try {
+                checkSession();
+                supabase.auth.onAuthStateChange((event, session) => {
+                    if (session) {
+                        currentUser = {
+                            id: session.user.id,
+                            email: session.user.email,
+                            name: session.user.user_metadata?.vorname || session.user.email.split('@')[0]
+                        };
+                        showApp(currentUser);
+                    } else {
+                        currentUser = null;
+                        showAuth();
+                    }
+                });
+            } catch (err) {
+                console.error('Supabase auth setup failed:', err);
+            }
         }
 
         async function checkSession() {
+            if (!supabase) return;
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (session) {
@@ -1417,7 +1428,7 @@
         }
 
         function openModal(entry) {
-            const modal = document.getElementById('detailModal');
+            const modal = document.getElementById('modalOverlay');
             document.querySelector('.modal-name').textContent = entry.name;
             document.querySelector('.modal-date').textContent = entry.date_original;
             document.querySelector('.modal-condition').textContent = entry.condition;
@@ -1439,11 +1450,11 @@
         }
 
         function closeModal() {
-            document.getElementById('detailModal').style.display = 'none';
+            document.getElementById('modalOverlay').style.display = 'none';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('detailModal');
+            const modal = document.getElementById('modalOverlay');
             document.querySelector('.modal-close').addEventListener('click', closeModal);
             
             document.querySelectorAll('.modal-nav').forEach(nav => {
