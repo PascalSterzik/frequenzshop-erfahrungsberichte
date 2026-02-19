@@ -187,7 +187,7 @@
         .app-header {
             background: white;
             border-bottom: 1px solid var(--border);
-            padding: 24px;
+            padding: 16px 24px;
             box-shadow: var(--shadow);
         }
 
@@ -197,20 +197,51 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
         }
 
         .header-title {
-            flex: 1;
+            min-width: 0;
         }
 
         .header-title h1 {
-            font-size: 28px;
+            font-size: 20px;
             color: var(--secondary);
-            margin-bottom: 4px;
+            margin-bottom: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-title-light {
+            font-weight: 400;
+            color: var(--primary);
         }
 
         .header-subtitle {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-light);
         }
 
@@ -224,10 +255,49 @@
             font-size: 13px;
             cursor: pointer;
             transition: all 0.3s ease;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
         .btn-logout:hover {
             background: var(--primary-dark);
+        }
+
+        /* STICKY HEADER (appears on scroll-up) */
+        .sticky-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 850;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            padding: 10px 24px;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+        .sticky-header.visible {
+            transform: translateY(0);
+        }
+        .sticky-header .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sticky-header .header-logo {
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+            border-radius: 8px;
+        }
+        .sticky-header .header-title h1 {
+            font-size: 16px;
+        }
+        .sticky-header .header-subtitle {
+            font-size: 11px;
         }
 
         /* MAIN CONTENT */
@@ -816,9 +886,28 @@
                 padding: 30px 20px;
             }
 
-            .header-content {
-                flex-direction: column;
-                gap: 12px;
+            .app-header {
+                padding: 12px 16px;
+            }
+
+            .header-title h1 {
+                font-size: 15px;
+            }
+
+            .header-subtitle {
+                display: none;
+            }
+
+            .header-logo {
+                width: 34px;
+                height: 34px;
+                font-size: 17px;
+                border-radius: 8px;
+            }
+
+            .btn-logout {
+                padding: 6px 12px;
+                font-size: 12px;
             }
 
             .app-main {
@@ -845,6 +934,11 @@
 
             .modal-nav.next {
                 right: 10px;
+            }
+
+            /* Sticky header sits below sticky search bar on mobile */
+            .sticky-header {
+                top: 58px;
             }
         }
 
@@ -1180,6 +1274,11 @@
             /* Hide original search + filters in main area on desktop */
             .search-container { display: none; }
             .filters-section { display: none; }
+
+            /* Sticky header accounts for sidepanel on desktop */
+            .sticky-header {
+                left: 280px;
+            }
         }
 
         /* Mobile: show sticky bar, add top padding for fixed bar */
@@ -1204,6 +1303,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
 <body>
+    <!-- STICKY HEADER (appears on scroll-up, both desktop + mobile) -->
+    <div id="stickyHeader" class="sticky-header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="header-logo">F</span>
+                <div class="header-title">
+                    <h1>Frequenzshop <span class="header-title-light">Erfahrungsberichte</span></h1>
+                    <p class="header-subtitle"><span class="sticky-result-count">829</span> Erfahrungsberichte angezeigt</p>
+                </div>
+            </div>
+            <button type="button" class="btn-logout" onclick="document.getElementById('logoutBtn').click()">Abmelden</button>
+        </div>
+    </div>
+
     <!-- STICKY BAR (mobile only) -->
     <div id="stickyBar" class="sticky-bar">
         <div class="sticky-bar-inner">
@@ -1327,11 +1440,14 @@
     <!-- APP SCREEN -->
     <div id="appScreen" class="app-container">
         <!-- HEADER -->
-        <div class="app-header">
+        <div class="app-header" id="appHeader">
             <div class="header-content">
-                <div class="header-title">
-                    <h1>Frequenzshop Erfahrungsberichte</h1>
-                    <p class="header-subtitle"><span class="result-count">829</span> Erfahrungsberichte von echten Anwendern</p>
+                <div class="header-left">
+                    <span class="header-logo">F</span>
+                    <div class="header-title">
+                        <h1>Frequenzshop <span class="header-title-light">Erfahrungsberichte</span></h1>
+                        <p class="header-subtitle"><span class="result-count">829</span> Erfahrungsberichte von echten Anwendern</p>
+                    </div>
                 </div>
                 <button id="logoutBtn" class="btn-logout">Abmelden</button>
             </div>
@@ -1410,7 +1526,7 @@
             <!-- RESULTS -->
             <div id="resultsContainer">
                 <div class="results-info">
-                    <span class="results-count">0</span> Ergebnisse gefunden
+                    <span class="results-count">0</span> Erfahrungsberichte angezeigt
                 </div>
                 <div id="cardsContainer" class="cards-grid"></div>
                 <button id="loadMoreBtn" class="btn-load-more">Mehr laden</button>
@@ -1822,6 +1938,8 @@
             
             document.querySelector('.results-count').textContent = filtered.length;
             document.querySelector('.result-count').textContent = filtered.length;
+            var src = document.querySelector('.sticky-result-count');
+            if (src) src.textContent = filtered.length;
             
             const cardsContainer = document.getElementById('cardsContainer');
             cardsContainer.innerHTML = '';
@@ -2036,7 +2154,7 @@
             function updateSidepanelCount() {
                 if (typeof getFilteredResults === 'function') {
                     var count = getFilteredResults().length;
-                    sidepanelCount.innerHTML = '<strong>' + count + '</strong> Ergebnisse';
+                    sidepanelCount.innerHTML = '<strong>' + count + '</strong> Erfahrungsberichte angezeigt';
                 }
             }
 
@@ -2062,6 +2180,46 @@
             filterTriples.forEach(function(triple) {
                 filterSyncObserver.observe(triple.main, { childList: true });
             });
+        })();
+
+        // ===== STICKY HEADER (scroll-up detection) =====
+        (function() {
+            var stickyHeader = document.getElementById('stickyHeader');
+            var appHeader = document.getElementById('appHeader');
+            var lastScrollY = window.scrollY;
+            var scrollUpDist = 0;
+            var isVisible = false;
+            var THRESHOLD = 120;
+
+            window.addEventListener('scroll', function() {
+                var currentY = window.scrollY;
+                var headerRect = appHeader.getBoundingClientRect();
+                var headerHidden = headerRect.bottom < 0;
+
+                if (currentY < lastScrollY) {
+                    // Scrolling UP
+                    scrollUpDist += (lastScrollY - currentY);
+                    if (scrollUpDist > THRESHOLD && headerHidden && !isVisible) {
+                        stickyHeader.classList.add('visible');
+                        isVisible = true;
+                    }
+                } else {
+                    // Scrolling DOWN
+                    scrollUpDist = 0;
+                    if (isVisible) {
+                        stickyHeader.classList.remove('visible');
+                        isVisible = false;
+                    }
+                }
+
+                // Hide when original header is visible
+                if (!headerHidden && isVisible) {
+                    stickyHeader.classList.remove('visible');
+                    isVisible = false;
+                }
+
+                lastScrollY = currentY;
+            }, { passive: true });
         })();
 
         // ===== INIT =====
