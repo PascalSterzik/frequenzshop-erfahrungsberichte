@@ -1127,8 +1127,8 @@
             /* Hide sticky bar on desktop */
             .sticky-bar { display: none !important; }
 
-            /* Show sidepanel on desktop */
-            .sidepanel {
+            /* Show sidepanel on desktop ONLY when authenticated */
+            body.authenticated .sidepanel {
                 display: block;
                 position: fixed;
                 top: 0;
@@ -1248,13 +1248,13 @@
             }
 
             /* Push main content to the right on desktop */
-            .app-container.active {
+            body.authenticated .app-container.active {
                 margin-left: 280px;
             }
 
             /* Hide original search + filters in main area on desktop */
-            .search-container { display: none; }
-            .filters-section { display: none; }
+            body.authenticated .search-container { display: none; }
+            body.authenticated .filters-section { display: none; }
 
             /* Header accounts for sidepanel on desktop */
             .app-header.sticky {
@@ -1262,14 +1262,14 @@
             }
         }
 
-        /* Mobile: show sticky bar, add top padding for fixed bar */
+        /* Mobile: show sticky bar ONLY when authenticated, add top padding for fixed bar */
         @media (max-width: 768px) {
-            .sticky-bar { display: block; }
+            body.authenticated .sticky-bar { display: block; }
             /* padding handled in mobile header section */
 
             /* Hide original search + filters on mobile too (sticky bar replaces them) */
-            .search-container { display: none; }
-            .filters-section { display: none; }
+            body.authenticated .search-container { display: none; }
+            body.authenticated .filters-section { display: none; }
 
             .sticky-filters-grid {
                 grid-template-columns: 1fr 1fr;
@@ -1546,10 +1546,31 @@
                     throw error;
                 }
                 
-                showMessage('registerForm', 'Bitte überprüfe deine E-Mail, um dein Konto zu bestätigen.');
-                document.getElementById('registerName').value = '';
-                document.getElementById('registerEmail').value = '';
-                document.getElementById('registerPassword').value = '';
+                // Check if email confirmation is required
+                if (data.user && data.user.identities && data.user.identities.length === 0) {
+                    // Email already registered
+                    showError('registerForm', 'Diese E-Mail ist bereits registriert. Bitte melde dich an.');
+                    return data;
+                }
+                
+                if (data.session) {
+                    // Auto-confirmed — session returned, user is logged in
+                    return data;
+                } else {
+                    // Email confirmation required — try to sign in directly
+                    // (works if autoconfirm is disabled but user just registered)
+                    showMessage('registerForm', 'Registrierung erfolgreich! Bitte überprüfe deine E-Mail oder melde dich direkt an.');
+                    // Switch to login tab and prefill email
+                    document.getElementById('loginEmail').value = email;
+                    document.getElementById('registerName').value = '';
+                    document.getElementById('registerEmail').value = '';
+                    document.getElementById('registerPassword').value = '';
+                    // Auto-switch to login tab after 2s
+                    setTimeout(function() {
+                        var loginTab = document.querySelector('[data-tab="login"]');
+                        if (loginTab) loginTab.click();
+                    }, 2000);
+                }
                 
                 return data;
             } catch (error) {
@@ -1573,7 +1594,9 @@
                 
                 if (error) {
                     if (error.message.includes('Invalid login credentials')) {
-                        showError('loginForm', 'E-Mail oder Passwort ist falsch.');
+                        showError('loginForm', 'E-Mail oder Passwort ist falsch. Falls du dich gerade erst registriert hast, überprüfe bitte deine E-Mail auf einen Bestätigungslink.');
+                    } else if (error.message.includes('Email not confirmed')) {
+                        showError('loginForm', 'Deine E-Mail wurde noch nicht bestätigt. Bitte überprüfe dein Postfach auf den Bestätigungslink.');
                     } else {
                         showError('loginForm', error.message);
                     }
@@ -1595,6 +1618,7 @@
                 currentUser = null;
                 displayedCount = 30;
                 activeFilters = {};
+                document.body.classList.remove('authenticated');
                 document.getElementById('authScreen').style.display = 'flex';
                 document.getElementById('appScreen').classList.remove('active');
                 document.getElementById('loginEmail').value = '';
@@ -1733,18 +1757,20 @@
         }
 
         function showAuth() {
+            document.body.classList.remove('authenticated');
             document.getElementById('authScreen').style.display = 'flex';
             document.getElementById('appScreen').classList.remove('active');
         }
 
         function showApp(user) {
+            document.body.classList.add('authenticated');
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('appScreen').classList.add('active');
             
-            // welcome handled separately
-            if (headerSubtitle && user.name) {
+            // Set welcome text
+            if (user && user.name) {
                 var welcomeEl = document.getElementById('welcomeText');
-                if (welcomeEl) welcomeEl.textContent = 'Willkommen, ' + user.name + '!'; color: var(--text-light); margin-top: 4px; display: inline-block;">Willkommen, ' + user.name + '!</small>';
+                if (welcomeEl) welcomeEl.textContent = 'Willkommen, ' + user.name + '!';
             }
             
             initializeApp();
