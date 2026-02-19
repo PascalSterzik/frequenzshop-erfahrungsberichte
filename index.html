@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frequenzshop Erfahrungsberichte</title>
+    <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -1030,7 +1031,7 @@
             registerBtn.textContent = 'Wird registriert...';
             
             try {
-                const { data, error } = await supabase.auth.signUp({
+                const { data, error } = await supabaseClient.auth.signUp({
                     email: email,
                     password: password,
                     options: {
@@ -1063,7 +1064,7 @@
             loginBtn.textContent = 'Wird angemeldet...';
             
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
@@ -1088,7 +1089,7 @@
 
         async function logout() {
             try {
-                await supabase.auth.signOut();
+                await supabaseClient.auth.signOut();
                 currentUser = null;
                 displayedCount = 30;
                 activeFilters = {};
@@ -1107,7 +1108,7 @@
 
         async function resetPassword(email) {
             try {
-                const { error } = await supabase.auth.resetPasswordForEmail(email);
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
                 if (error) throw error;
                 showMessage('loginForm', 'Anleitung zum Zurücksetzen des Passworts wurde an deine E-Mail gesendet.');
             } catch (error) {
@@ -1184,14 +1185,14 @@
             }
 
             // 2. Supabase auth setup (with error handling)
-            if (!supabase) {
+            if (!supabaseClient) {
                 console.error('Supabase client not initialized');
                 return;
             }
 
             try {
                 checkSession();
-                supabase.auth.onAuthStateChange((event, session) => {
+                supabaseClient.auth.onAuthStateChange((event, session) => {
                     if (session) {
                         currentUser = {
                             id: session.user.id,
@@ -1210,9 +1211,9 @@
         }
 
         async function checkSession() {
-            if (!supabase) return;
+            if (!supabaseClient) return;
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) {
                     currentUser = {
                         id: session.user.id,
