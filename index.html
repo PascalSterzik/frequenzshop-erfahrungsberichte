@@ -1264,13 +1264,13 @@
 
             DATA.entries.forEach(entry => {
                 if (entry.indikation) {
-                    entry.indikation.forEach(i => indikations.add(i));
+                    entry.indikation.forEach(i => { if (i) indikations.add(i); });
                 }
                 if (entry.korperteil) {
-                    entry.korperteil.forEach(k => korperteile.add(k));
+                    entry.korperteil.forEach(k => { if (k) korperteile.add(k); });
                 }
                 if (entry.produkt) {
-                    entry.produkt.forEach(p => produkte.add(p));
+                    entry.produkt.forEach(p => { if (p) produkte.add(p); });
                 }
                 if (entry.behandlungstyp) {
                     behandlungstypen.add(entry.behandlungstyp);
@@ -1289,11 +1289,17 @@
 
         function populateSelect(elementId, options) {
             const select = document.getElementById(elementId);
+            // Keep only the first "Alle..." default option, remove rest
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
             options.forEach(option => {
-                const opt = document.createElement('option');
-                opt.value = option;
-                opt.textContent = option;
-                select.appendChild(opt);
+                if (option && option.trim()) {
+                    const opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    select.appendChild(opt);
+                }
             });
         }
 
