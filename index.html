@@ -1531,7 +1531,7 @@
             const registerBtn = document.querySelector('#registerForm button[type="submit"]');
             registerBtn.disabled = true;
             registerBtn.textContent = 'Wird registriert...';
-            
+
             try {
                 const { data, error } = await supabaseClient.auth.signUp({
                     email: email,
@@ -1540,39 +1540,43 @@
                         data: { vorname: vorname }
                     }
                 });
-                
+
+                console.log('SignUp response:', JSON.stringify({error: error, hasSession: !!data?.session, hasUser: !!data?.user, identities: data?.user?.identities?.length, confirmed: data?.user?.email_confirmed_at}));
+
                 if (error) {
-                    showError('registerForm', error.message);
+                    showError('registerForm', 'Fehler: ' + error.message + ' (Code: ' + (error.status || 'unbekannt') + ')');
                     throw error;
                 }
-                
-                // Check if email confirmation is required
+
+                // Check if email already registered (Supabase returns user with no identities)
                 if (data.user && data.user.identities && data.user.identities.length === 0) {
-                    // Email already registered
-                    showError('registerForm', 'Diese E-Mail ist bereits registriert. Bitte melde dich an.');
+                    showError('registerForm', 'Diese E-Mail ist bereits registriert. Bitte wechsle zum Anmelden-Tab.');
                     return data;
                 }
-                
+
                 if (data.session) {
                     // Auto-confirmed — session returned, user is logged in
+                    showMessage('registerForm', 'Registrierung erfolgreich! Du wirst angemeldet...');
                     return data;
-                } else {
-                    // Email confirmation required — try to sign in directly
-                    // (works if autoconfirm is disabled but user just registered)
-                    showMessage('registerForm', 'Registrierung erfolgreich! Bitte überprüfe deine E-Mail oder melde dich direkt an.');
-                    // Switch to login tab and prefill email
-                    document.getElementById('loginEmail').value = email;
-                    document.getElementById('registerName').value = '';
-                    document.getElementById('registerEmail').value = '';
-                    document.getElementById('registerPassword').value = '';
-                    // Auto-switch to login tab after 2s
-                    setTimeout(function() {
-                        var loginTab = document.querySelector('[data-tab="login"]');
-                        if (loginTab) loginTab.click();
-                    }, 2000);
                 }
-                
-                return data;
+
+                // No session returned — email confirmation might be required
+                // Try to sign in immediately (works when autoconfirm is ON)
+                console.log('No session from signUp, attempting immediate signIn...');
+                const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (loginError) {
+                    console.log('Auto-login after register failed:', loginError.message);
+                    showMessage('registerForm', 'Registrierung erfolgreich! Falls du eine Bestätigungs-E-Mail erhalten hast, klicke den Link darin. Ansonsten melde dich mit deinen Daten an.');
+                    document.getElementById('loginEmail').value = email;
+                } else {
+                    showMessage('registerForm', 'Erfolgreich registriert und angemeldet!');
+                }
+
+                return loginData || data;
             } catch (error) {
                 console.error('Registration error:', error);
             } finally {
@@ -1585,24 +1589,33 @@
             const loginBtn = document.querySelector('#loginForm button[type="submit"]');
             loginBtn.disabled = true;
             loginBtn.textContent = 'Wird angemeldet...';
-            
+
             try {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
-                
+
+                console.log('Login response:', JSON.stringify({error: error?.message, hasSession: !!data?.session, status: error?.status}));
+
                 if (error) {
+                    // Show the REAL error from Supabase so we can debug
+                    var userMsg = '';
+                    var debugMsg = ' [Debug: ' + error.message + ']';
+
                     if (error.message.includes('Invalid login credentials')) {
-                        showError('loginForm', 'E-Mail oder Passwort ist falsch. Falls du dich gerade erst registriert hast, überprüfe bitte deine E-Mail auf einen Bestätigungslink.');
+                        userMsg = 'E-Mail oder Passwort ist falsch.';
                     } else if (error.message.includes('Email not confirmed')) {
-                        showError('loginForm', 'Deine E-Mail wurde noch nicht bestätigt. Bitte überprüfe dein Postfach auf den Bestätigungslink.');
+                        userMsg = 'Deine E-Mail wurde noch nicht bestätigt. Bitte überprüfe dein Postfach.';
                     } else {
-                        showError('loginForm', error.message);
+                        userMsg = error.message;
+                        debugMsg = '';
                     }
+
+                    showError('loginForm', userMsg + debugMsg);
                     throw error;
                 }
-                
+
                 return data;
             } catch (error) {
                 console.error('Login error:', error);
