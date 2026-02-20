@@ -211,6 +211,49 @@
             padding: 20px;
         }
 
+        /* Preview mode: auth as overlay on top of app */
+        body.preview .auth-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            height: auto;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        body.preview .auth-container.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        body.preview .auth-box {
+            transform: translateY(20px);
+            transition: transform 0.5s ease;
+        }
+        body.preview .auth-container.visible .auth-box {
+            transform: translateY(0);
+        }
+        /* Hide user-specific elements in preview */
+        body.preview .user-menu-btn,
+        body.preview .user-menu-dropdown,
+        body.preview .sidepanel-footer,
+        body.preview .sidepanel-cta,
+        body.preview .shop-cta,
+        body.preview #menuSettings,
+        body.preview #menuShareExperience,
+        body.preview #menuFeedback,
+        body.preview #menuLogout {
+            display: none !important;
+        }
+        body.preview .welcome-section {
+            display: none !important;
+        }
+
         .auth-box {
             background: var(--card-bg);
             border-radius: 12px;
@@ -1971,7 +2014,8 @@
             .sticky-bar { display: none !important; }
 
             /* Show sidepanel on desktop ONLY when authenticated */
-            body.authenticated .sidepanel {
+            body.authenticated .sidepanel,
+            body.preview .sidepanel {
                 display: flex;
                 flex-direction: column;
                 position: fixed;
@@ -2089,13 +2133,16 @@
             }
 
             /* Push main content to the right on desktop */
-            body.authenticated .app-container.active {
+            body.authenticated .app-container.active,
+            body.preview .app-container.active {
                 margin-left: 280px;
             }
 
             /* Hide original search + filters in main area on desktop */
-            body.authenticated .search-container { display: none; }
-            body.authenticated .filters-section { display: none; }
+            body.authenticated .search-container,
+            body.preview .search-container { display: none; }
+            body.authenticated .filters-section,
+            body.preview .filters-section { display: none; }
 
             /* Header accounts for sidepanel on desktop */
             .app-header.sticky {
@@ -2105,12 +2152,15 @@
 
         /* Mobile: show sticky bar ONLY when authenticated, add top padding for fixed bar */
         @media (max-width: 768px) {
-            body.authenticated .sticky-bar { display: block; }
+            body.authenticated .sticky-bar,
+            body.preview .sticky-bar { display: block; }
             /* padding handled in mobile header section */
 
             /* Hide original search + filters on mobile too (sticky bar replaces them) */
-            body.authenticated .search-container { display: none; }
-            body.authenticated .filters-section { display: none; }
+            body.authenticated .search-container,
+            body.preview .search-container { display: none; }
+            body.authenticated .filters-section,
+            body.preview .filters-section { display: none; }
 
             .sticky-filters-grid {
                 grid-template-columns: 1fr 1fr;
@@ -3253,13 +3303,47 @@
             }
         }
 
+        var previewInitialized = false;
+        var previewTimer = null;
+
         function showAuth() {
             document.body.classList.remove('authenticated');
-            document.getElementById('authScreen').style.display = 'flex';
-            document.getElementById('appScreen').classList.remove('active');
+            // Preview mode: show app behind auth overlay
+            if (!previewInitialized) {
+                previewInitialized = true;
+                document.body.classList.add('preview');
+                document.getElementById('appScreen').classList.add('active');
+                document.getElementById('authScreen').style.display = 'flex';
+                // Initialize app to render cards
+                initializeApp();
+                // Show auth overlay after 3 seconds
+                previewTimer = setTimeout(function() {
+                    document.getElementById('authScreen').classList.add('visible');
+                }, 3000);
+                // Also show on any click/scroll interaction
+                var triggerOverlay = function() {
+                    if (previewTimer) clearTimeout(previewTimer);
+                    document.getElementById('authScreen').classList.add('visible');
+                    document.removeEventListener('click', triggerOverlay);
+                    document.removeEventListener('scroll', triggerOverlay, true);
+                };
+                document.addEventListener('click', triggerOverlay);
+                document.addEventListener('scroll', triggerOverlay, true);
+            } else {
+                // Returning to auth (e.g. after logout) — show overlay immediately
+                document.body.classList.add('preview');
+                document.getElementById('appScreen').classList.add('active');
+                document.getElementById('authScreen').style.display = 'flex';
+                document.getElementById('authScreen').classList.add('visible');
+            }
         }
 
         function showApp(user) {
+            // Clean up preview mode
+            document.body.classList.remove('preview');
+            if (previewTimer) { clearTimeout(previewTimer); previewTimer = null; }
+            document.getElementById('authScreen').classList.remove('visible');
+
             document.body.classList.add('authenticated');
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('appScreen').classList.add('active');
@@ -3282,7 +3366,10 @@
         }
 
         // ===== APP INITIALIZATION =====
+        var appInitialized = false;
         function initializeApp() {
+            if (appInitialized) { renderResults(); return; }
+            appInitialized = true;
             populateFilters();
             setupEventListeners();
             renderResults();
