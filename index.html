@@ -1459,16 +1459,18 @@
             }
     
         /* Sort toggle + detail filter */
-        .sort-toggle-btn { display: flex; align-items: center; gap: 8px; background: var(--background); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text); transition: all 0.2s; width: 100%; }
+        .sort-toggle-btn { display: flex; align-items: center; gap: 8px; background: var(--background); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text-dark); transition: all 0.2s; width: 100%; }
         .sort-toggle-btn:hover { border-color: var(--primary); background: var(--card-bg); }
         .sort-toggle-btn .sort-icon { display: flex; align-items: center; color: var(--primary); }
         .sidepanel-sort-row { margin-bottom: 12px; }
-        .detail-filter-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; padding: 6px 0; margin-bottom: 8px; }
+        .detail-filter-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dark); cursor: pointer; padding: 6px 0; margin-bottom: 8px; }
         .detail-filter-label input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer; }
-        .sticky-sort-row { display: flex; gap: 8px; padding: 10px 0 4px; align-items: center; }
-        .sticky-sort-row .sort-toggle-btn { flex: 0 0 auto; padding: 7px 12px; font-size: 12px; width: auto; border-radius: 20px; }
-        .sticky-sort-row .sort-toggle-btn .sort-icon svg { width: 12px; height: 12px; }
-        .detail-filter-mobile { font-size: 12px; margin-bottom: 0; white-space: nowrap; padding: 4px 0; }
+        .sticky-options-row { display: flex; gap: 8px; padding: 10px 0 4px; align-items: center; border-top: 1px solid var(--border); margin-top: 8px; }
+        .sticky-option-item { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--card-bg); color: var(--text-dark); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .sticky-option-item:hover, .sticky-option-item:active { border-color: var(--primary); }
+        .sticky-option-icon { color: var(--primary); flex-shrink: 0; }
+        .sticky-option-check { flex-shrink: 0; }
+        .sticky-option-check input[type="checkbox"] { accent-color: var(--primary); width: 14px; height: 14px; cursor: pointer; margin: 0; }
 
         .sidepanel-reset:hover {
                 background: var(--border);
@@ -1690,12 +1692,12 @@
                 <select id="stickyFilterBehandlungstyp"><option value="">Alle Typen</option></select>
                 <select id="stickyFilterBehandlungserfolg"><option value="">Alle Erfolge</option></select>
             </div>
-            <div class="sticky-sort-row">
-                <button type="button" id="stickySortBtn" class="sort-toggle-btn" title="Sortierung ändern">
-                    <span class="sort-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
+            <div class="sticky-options-row">
+                <div class="sticky-option-item" id="stickySortBtn" role="button" tabindex="0">
+                    <svg class="sticky-option-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
                     <span class="sort-label">Neueste zuerst</span>
-                </button>
-                <label class="detail-filter-label detail-filter-mobile">
+                </div>
+                <label class="sticky-option-item sticky-option-check" for="stickyDetailCheck">
                     <input type="checkbox" id="stickyDetailCheck">
                     <span>Nur ausführliche</span>
                 </label>
@@ -2537,8 +2539,10 @@
                 var icon = currentSortOrder === 'newest' ? descSvg : ascSvg;
                 sortBtns.forEach(function(btn) {
                     if (btn) {
-                        btn.querySelector('.sort-label').textContent = label;
-                        btn.querySelector('.sort-icon').innerHTML = icon;
+                        var lbl = btn.querySelector('.sort-label');
+                        if (lbl) lbl.textContent = label;
+                        var iconEl = btn.querySelector('.sort-icon') || btn.querySelector('.sticky-option-icon');
+                        if (iconEl) iconEl.outerHTML = '<svg class="' + iconEl.className + '" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (currentSortOrder === 'newest' ? '<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>' : '<line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>') + '</svg>';
                     }
                 });
             }
