@@ -2084,6 +2084,69 @@
         <button class="modal-nav next" id="nextBtn">❯</button>
     </div>
 
+    <!-- SETTINGS MODAL -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-box">
+            <div class="settings-header">
+                <h2>Kontoeinstellungen</h2>
+                <button type="button" class="settings-close" id="settingsClose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="settings-body">
+                <!-- Name -->
+                <div class="settings-section">
+                    <div class="settings-section-title">Vorname</div>
+                    <div class="settings-field">
+                        <input type="text" id="settingsName" placeholder="Dein Vorname">
+                    </div>
+                    <button type="button" class="settings-btn settings-btn-primary" id="saveNameBtn">Name speichern</button>
+                    <div class="settings-msg" id="nameMsg"></div>
+                </div>
+
+                <!-- Email -->
+                <div class="settings-section">
+                    <div class="settings-section-title">E-Mail-Adresse</div>
+                    <div class="settings-field">
+                        <label>Aktuelle E-Mail</label>
+                        <input type="email" id="settingsCurrentEmail" disabled>
+                    </div>
+                    <div class="settings-field">
+                        <label>Neue E-Mail-Adresse</label>
+                        <input type="email" id="settingsNewEmail" placeholder="neue@email.de">
+                    </div>
+                    <button type="button" class="settings-btn settings-btn-primary" id="saveEmailBtn">E-Mail ändern</button>
+                    <div class="settings-msg" id="emailMsg"></div>
+                </div>
+
+                <!-- Password -->
+                <div class="settings-section">
+                    <div class="settings-section-title">Passwort</div>
+                    <div class="settings-field">
+                        <label>Neues Passwort</label>
+                        <input type="password" id="settingsNewPassword" placeholder="Mindestens 6 Zeichen">
+                    </div>
+                    <div class="settings-field">
+                        <label>Passwort bestätigen</label>
+                        <input type="password" id="settingsConfirmPassword" placeholder="Passwort wiederholen">
+                    </div>
+                    <button type="button" class="settings-btn settings-btn-primary" id="savePasswordBtn">Passwort ändern</button>
+                    <div class="settings-msg" id="passwordMsg"></div>
+                </div>
+
+                <!-- Delete Account -->
+                <div class="settings-section">
+                    <div class="settings-section-title">Gefahrenzone</div>
+                    <div class="settings-delete-zone">
+                        <p>Wenn du deinen Account löschst, werden alle deine Daten unwiderruflich entfernt. Diese Aktion kann nicht rückgängig gemacht werden.</p>
+                        <button type="button" class="settings-btn settings-btn-danger" id="deleteAccountBtn">Account löschen</button>
+                        <div class="settings-msg" id="deleteMsg"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
         <script>
         // SUPABASE CONFIGURATION
         const SUPABASE_URL = 'https://pdwafosfwvwgmwhanvqy.supabase.co';
@@ -3068,69 +3131,6 @@
         // ===== INIT =====
         setupAuth();
     </script>
-
-    <!-- SETTINGS MODAL -->
-    <div class="settings-overlay" id="settingsOverlay">
-        <div class="settings-box">
-            <div class="settings-header">
-                <h2>Kontoeinstellungen</h2>
-                <button type="button" class="settings-close" id="settingsClose">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-            </div>
-            <div class="settings-body">
-                <!-- Name -->
-                <div class="settings-section">
-                    <div class="settings-section-title">Vorname</div>
-                    <div class="settings-field">
-                        <input type="text" id="settingsName" placeholder="Dein Vorname">
-                    </div>
-                    <button type="button" class="settings-btn settings-btn-primary" id="saveNameBtn">Name speichern</button>
-                    <div class="settings-msg" id="nameMsg"></div>
-                </div>
-
-                <!-- Email -->
-                <div class="settings-section">
-                    <div class="settings-section-title">E-Mail-Adresse</div>
-                    <div class="settings-field">
-                        <label>Aktuelle E-Mail</label>
-                        <input type="email" id="settingsCurrentEmail" disabled>
-                    </div>
-                    <div class="settings-field">
-                        <label>Neue E-Mail-Adresse</label>
-                        <input type="email" id="settingsNewEmail" placeholder="neue@email.de">
-                    </div>
-                    <button type="button" class="settings-btn settings-btn-primary" id="saveEmailBtn">E-Mail ändern</button>
-                    <div class="settings-msg" id="emailMsg"></div>
-                </div>
-
-                <!-- Password -->
-                <div class="settings-section">
-                    <div class="settings-section-title">Passwort</div>
-                    <div class="settings-field">
-                        <label>Neues Passwort</label>
-                        <input type="password" id="settingsNewPassword" placeholder="Mindestens 6 Zeichen">
-                    </div>
-                    <div class="settings-field">
-                        <label>Passwort bestätigen</label>
-                        <input type="password" id="settingsConfirmPassword" placeholder="Passwort wiederholen">
-                    </div>
-                    <button type="button" class="settings-btn settings-btn-primary" id="savePasswordBtn">Passwort ändern</button>
-                    <div class="settings-msg" id="passwordMsg"></div>
-                </div>
-
-                <!-- Delete Account -->
-                <div class="settings-section">
-                    <div class="settings-section-title">Gefahrenzone</div>
-                    <div class="settings-delete-zone">
-                        <p>Wenn du deinen Account löschst, werden alle deine Daten unwiderruflich entfernt. Diese Aktion kann nicht rückgängig gemacht werden.</p>
-                        <button type="button" class="settings-btn settings-btn-danger" id="deleteAccountBtn">Account löschen</button>
-                        <div class="settings-msg" id="deleteMsg"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
 </body>
 </html>
