@@ -2250,15 +2250,6 @@
                     document.body.classList.add('dark-mode');
                 }
 
-                // FAQ toggle
-                var faqToggle = document.getElementById('authFaqToggle');
-                var faqAnswer = document.getElementById('authFaqAnswer');
-                if (faqToggle && faqAnswer) {
-                    faqToggle.onclick = function() {
-                        faqToggle.classList.toggle('open');
-                        faqAnswer.classList.toggle('open');
-                    };
-                }
             })();
             </script>
 
@@ -2299,12 +2290,18 @@
             <div class="auth-faq">
                 <button type="button" class="auth-faq-toggle" id="authFaqToggle">
                     <svg class="auth-faq-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                    Warum muss ich ein Konto erstellen?
+                    Warum brauche ich ein Konto?
                 </button>
                 <div class="auth-faq-answer" id="authFaqAnswer">
                     <p>Die Erfahrungsberichte stammen von echten Anwendern und wurden dem Gerätehersteller persönlich zur Verfügung gestellt. Da die Inhalte weder verändert noch medizinisch überprüft wurden, ist der Zugang auf registrierte Nutzer beschränkt — zum Schutz der Berichte und der Anwender.</p>
                 </div>
             </div>
+            <script>
+            document.getElementById('authFaqToggle').onclick = function() {
+                this.classList.toggle('open');
+                document.getElementById('authFaqAnswer').classList.toggle('open');
+            };
+            </script>
         </div>
     </div>
 
