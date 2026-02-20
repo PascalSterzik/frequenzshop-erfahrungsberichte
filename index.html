@@ -285,6 +285,54 @@
             to { opacity: 1; }
         }
 
+        /* Auth FAQ toggle */
+        .auth-faq {
+            margin-top: 20px;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+        .auth-faq-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            background: none;
+            border: none;
+            font-family: inherit;
+            font-size: 0.82rem;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0;
+            text-align: left;
+            transition: color 0.2s;
+        }
+        .auth-faq-toggle:hover {
+            color: var(--primary);
+        }
+        .auth-faq-arrow {
+            flex-shrink: 0;
+            transition: transform 0.25s ease;
+        }
+        .auth-faq-toggle.open .auth-faq-arrow {
+            transform: rotate(90deg);
+        }
+        .auth-faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.35s ease;
+            padding: 0 0 0 22px;
+        }
+        .auth-faq-answer.open {
+            max-height: 200px;
+            padding: 10px 0 0 22px;
+        }
+        .auth-faq-answer p {
+            font-size: 0.78rem;
+            color: var(--text-light);
+            line-height: 1.55;
+            margin: 0;
+        }
+
         .form-group {
             margin-bottom: 16px;
         }
@@ -2201,6 +2249,16 @@
                 if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                     document.body.classList.add('dark-mode');
                 }
+
+                // FAQ toggle
+                var faqToggle = document.getElementById('authFaqToggle');
+                var faqAnswer = document.getElementById('authFaqAnswer');
+                if (faqToggle && faqAnswer) {
+                    faqToggle.onclick = function() {
+                        faqToggle.classList.toggle('open');
+                        faqAnswer.classList.toggle('open');
+                    };
+                }
             })();
             </script>
 
@@ -2237,6 +2295,16 @@
                 </div>
                 <button type="submit" class="btn-primary">Registrieren</button>
             </form>
+
+            <div class="auth-faq">
+                <button type="button" class="auth-faq-toggle" id="authFaqToggle">
+                    <svg class="auth-faq-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    Warum muss ich ein Konto erstellen?
+                </button>
+                <div class="auth-faq-answer" id="authFaqAnswer">
+                    <p>Die Erfahrungsberichte stammen von echten Anwendern und wurden dem Gerätehersteller persönlich zur Verfügung gestellt. Da die Inhalte weder verändert noch medizinisch überprüft wurden, ist der Zugang auf registrierte Nutzer beschränkt — zum Schutz der Berichte und der Anwender.</p>
+                </div>
+            </div>
         </div>
     </div>
 
