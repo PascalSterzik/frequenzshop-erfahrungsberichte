@@ -1501,6 +1501,69 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Sort toggle button */
+        .sort-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .sort-toggle-btn:hover {
+            border-color: var(--primary);
+            background: var(--card-bg);
+        }
+        .sort-toggle-btn .sort-icon {
+            display: flex;
+            align-items: center;
+            color: var(--primary);
+        }
+        .sidepanel-sort-row {
+            margin-bottom: 12px;
+        }
+        /* Detail filter checkbox */
+        .detail-filter-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text);
+            cursor: pointer;
+            padding: 6px 0;
+            margin-bottom: 8px;
+        }
+        .detail-filter-label input[type="checkbox"] {
+            accent-color: var(--primary);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        /* Mobile sort row in sticky dropdown */
+        .sticky-sort-row {
+            display: flex;
+            gap: 8px;
+            padding: 8px 0 4px;
+            align-items: center;
+        }
+        .sticky-sort-row .sort-toggle-btn {
+            flex: 1;
+            padding: 7px 10px;
+            font-size: 12px;
+        }
+        .detail-filter-mobile {
+            font-size: 12px;
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
@@ -1536,6 +1599,17 @@
             <select id="sidepanelFilterBehandlungserfolg"><option value="">Alle Erfolge</option></select>
         </div>
         <button type="button" id="sidepanelResetBtn" class="sidepanel-reset">Filter zurücksetzen</button>
+        <div class="sidepanel-section-title" style="margin-top:20px">Sortierung & Optionen</div>
+        <div class="sidepanel-sort-row">
+            <button type="button" id="sidepanelSortBtn" class="sort-toggle-btn" title="Sortierung ändern">
+                <span class="sort-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
+                <span class="sort-label">Neueste zuerst</span>
+            </button>
+        </div>
+        <label class="detail-filter-label" id="sidepanelDetailFilter">
+            <input type="checkbox" id="sidepanelDetailCheck">
+            <span>Nur ausführliche Berichte</span>
+        </label>
         <div id="sidepanelCount" class="sidepanel-count"></div>
     </div>
 
@@ -1661,6 +1735,15 @@
                 <select id="stickyFilterBehandlungstyp"><option value="">Alle Typen</option></select>
                 <select id="stickyFilterBehandlungserfolg"><option value="">Alle Erfolge</option></select>
             </div>
+            <div class="sticky-sort-row">
+                <button type="button" id="stickySortBtn" class="sort-toggle-btn" title="Sortierung ändern">
+                    <span class="sort-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
+                    <span class="sort-label">Neueste zuerst</span>
+                </button>
+                <label class="detail-filter-label detail-filter-mobile">
+                    <input type="checkbox" id="stickyDetailCheck">
+                    <span>Nur ausführliche</span>
+                </label>
         </div>
     </div>
 
@@ -2188,13 +2271,20 @@
             });
         }
 
+        // Sort order: 'newest' (default) or 'oldest'
+        var currentSortOrder = 'newest';
+        // Detailed filter: minimum character count (0 = off)
+        var minTextLength = 0;
+
         function getFilteredResults() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            return DATA.entries.filter(entry => {
+            var results = DATA.entries.filter(entry => {
                 const matchesSearch = !searchTerm ||
                     (entry.full_text || '').toLowerCase().includes(searchTerm) ||
                     (entry.name || '').toLowerCase().includes(searchTerm) ||
                     (entry.condition || '').toLowerCase().includes(searchTerm);
+
+                const matchesLength = !minTextLength || (entry.full_text || '').length >= minTextLength;
 
                 const matchesFilters = Object.entries(activeFilters).every(([filterName, filterValue]) => {
                     const fieldName = filterName === 'indikation' ? 'indikation' :
@@ -2213,8 +2303,21 @@
                     }
                 });
 
-                return matchesSearch && matchesFilters;
+                return matchesSearch && matchesFilters && matchesLength;
             });
+
+            // Sort by date
+            results.sort(function(a, b) {
+                var dateA = a.date || '';
+                var dateB = b.date || '';
+                if (currentSortOrder === 'newest') {
+                    return dateB.localeCompare(dateA);
+                } else {
+                    return dateA.localeCompare(dateB);
+                }
+            });
+
+            return results;
         }
 
         function renderResults() {
@@ -2438,6 +2541,45 @@
             });
 
             function updateStickyFilterBtnState() {
+
+            // SORT TOGGLE + DETAIL FILTER
+            var sortBtns = [document.getElementById('sidepanelSortBtn'), document.getElementById('stickySortBtn')];
+            var detailChecks = [document.getElementById('sidepanelDetailCheck'), document.getElementById('stickyDetailCheck')];
+            
+            function updateSortButtons() {
+                var label = currentSortOrder === 'newest' ? 'Neueste zuerst' : 'Älteste zuerst';
+                var icon = currentSortOrder === 'newest' ? '<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"5\"/><polyline points=\"5 12 12 5 19 12\"/></svg>' : '<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"/><polyline points=\"19 12 12 19 5 12\"/></svg>';
+                sortBtns.forEach(function(btn) {
+                    if (btn) {
+                        btn.querySelector('.sort-label').textContent = label;
+                        btn.querySelector('.sort-icon').innerHTML = icon;
+                    }
+                });
+            }
+            
+            sortBtns.forEach(function(btn) {
+                if (btn) {
+                    btn.addEventListener('click', function() {
+                        currentSortOrder = currentSortOrder === 'newest' ? 'oldest' : 'newest';
+                        updateSortButtons();
+                        displayedCount = 30;
+                        renderResults();
+                    });
+                }
+            });
+            
+            detailChecks.forEach(function(chk) {
+                if (chk) {
+                    chk.addEventListener('change', function() {
+                        minTextLength = this.checked ? 300 : 0;
+                        // Sync all checkboxes
+                        detailChecks.forEach(function(c) { if (c) c.checked = chk.checked; });
+                        displayedCount = 30;
+                        renderResults();
+                    });
+                }
+            });
+
                 if (!stickyFilterBtn) return;
                 var count = Object.keys(activeFilters).length;
                 stickyFilterBtn.classList.toggle('has-filters', count > 0);
