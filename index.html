@@ -923,7 +923,7 @@
         }
         /* Sidepanel footer */
         .sidepanel-footer {
-            margin-top: 24px;
+            margin-top: auto;
             padding-top: 16px;
             border-top: 1px solid var(--border);
             text-align: center;
@@ -1874,7 +1874,8 @@
 
             /* Show sidepanel on desktop ONLY when authenticated */
             body.authenticated .sidepanel {
-                display: block;
+                display: flex;
+                flex-direction: column;
                 position: fixed;
                 top: 0;
                 left: 0;
