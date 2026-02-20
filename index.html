@@ -2242,6 +2242,22 @@
             max-height: 95vh;
             object-fit: contain;
             border-radius: 4px;
+            cursor: pointer;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            font-size: 36px;
+            color: #fff;
+            cursor: pointer;
+            z-index: 10002;
+            line-height: 1;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .lightbox-close:hover {
+            opacity: 1;
         }
 
         /* Image filter */
@@ -4011,17 +4027,25 @@
 
         // Lightbox for full-size image viewing
         function openLightbox(src) {
-            event.stopPropagation();
+            if (event) event.stopPropagation();
             var overlay = document.getElementById('lightboxOverlay');
             document.getElementById('lightboxImg').src = src;
             overlay.classList.add('active');
         }
-
-        document.getElementById('lightboxOverlay').addEventListener('click', function() {
-            this.classList.remove('active');
+        function closeLightbox() {
+            document.getElementById('lightboxOverlay').classList.remove('active');
+        }
+        // Attach after DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            var lb = document.getElementById('lightboxOverlay');
+            if (lb) {
+                lb.addEventListener('click', closeLightbox);
+                var lbImg = document.getElementById('lightboxImg');
+                if (lbImg) lbImg.addEventListener('click', closeLightbox);
+            }
         });
     </script>
 
-    <div class="lightbox-overlay" id="lightboxOverlay"><img id="lightboxImg" src="" alt=""></div>
+    <div class="lightbox-overlay" id="lightboxOverlay"><span class="lightbox-close" onclick="closeLightbox()">&times;</span><img id="lightboxImg" src="" alt="" onclick="closeLightbox()"></div>
 </body>
 </html>
