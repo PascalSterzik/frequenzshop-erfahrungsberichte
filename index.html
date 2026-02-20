@@ -1347,6 +1347,21 @@
             font-family: 'Inter', sans-serif;
         }
 
+        /* Sort toggle + detail filter (GLOBAL — applies to both mobile + desktop) */
+        .sort-toggle-btn { display: flex; align-items: center; gap: 8px; background: var(--background); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text-dark); transition: all 0.2s; width: 100%; }
+        .sort-toggle-btn:hover { border-color: var(--primary); background: var(--card-bg); }
+        .sort-toggle-btn .sort-icon { display: flex; align-items: center; color: var(--primary); }
+        .sidepanel-sort-row { margin-bottom: 12px; }
+        .detail-filter-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dark); cursor: pointer; padding: 6px 0; margin-bottom: 8px; }
+        .detail-filter-label input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer; }
+        .sticky-options-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0 4px; border-top: 1px solid var(--border); margin-top: 8px; }
+        .sticky-option-sort { display: flex; align-items: center; gap: 6px; padding: 6px 0; color: var(--text-dark); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .sticky-option-sort .sort-icon { display: flex; align-items: center; color: var(--primary); }
+        .sticky-option-sort .sort-label { font-weight: 500; }
+        .sticky-option-sort:active .sort-label { color: var(--primary); }
+        .sticky-option-check { display: flex; align-items: center; gap: 6px; padding: 6px 0; color: var(--text-dark); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .sticky-option-check input[type="checkbox"] { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; margin: 0; }
+
         /* ===== DESKTOP: SIDEPANEL ===== */
         .sidepanel {
             display: none; /* hidden on mobile */
@@ -1457,22 +1472,6 @@
                 transition: all 0.2s;
                 font-family: 'Inter', sans-serif;
             }
-    
-        /* Sort toggle + detail filter */
-        .sort-toggle-btn { display: flex; align-items: center; gap: 8px; background: var(--background); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text-dark); transition: all 0.2s; width: 100%; }
-        .sort-toggle-btn:hover { border-color: var(--primary); background: var(--card-bg); }
-        .sort-toggle-btn .sort-icon { display: flex; align-items: center; color: var(--primary); }
-        .sidepanel-sort-row { margin-bottom: 12px; }
-        .detail-filter-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dark); cursor: pointer; padding: 6px 0; margin-bottom: 8px; }
-        .detail-filter-label input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer; }
-        .sticky-options-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0 4px; border-top: 1px solid var(--border); margin-top: 8px; }
-        .sticky-option-sort { display: flex; align-items: center; gap: 6px; padding: 6px 0; color: var(--text-dark); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .sticky-option-sort .sort-icon { display: flex; align-items: center; color: var(--primary); }
-        .sticky-option-sort .sort-label { font-weight: 500; }
-        .sticky-option-sort:active .sort-label { color: var(--primary); }
-        .sticky-option-check { display: flex; align-items: center; gap: 6px; padding: 6px 0; color: var(--text-dark); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .sticky-option-check input[type="checkbox"] { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; margin: 0; }
-
         .sidepanel-reset:hover {
                 background: var(--border);
                 color: var(--text-dark);
