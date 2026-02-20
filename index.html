@@ -1465,12 +1465,13 @@
         .sidepanel-sort-row { margin-bottom: 12px; }
         .detail-filter-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dark); cursor: pointer; padding: 6px 0; margin-bottom: 8px; }
         .detail-filter-label input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer; }
-        .sticky-options-row { display: flex; gap: 8px; padding: 10px 0 4px; align-items: center; border-top: 1px solid var(--border); margin-top: 8px; flex-wrap: nowrap; }
-        .sticky-option-item { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--card-bg); color: var(--text-dark); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-        .sticky-option-item:hover, .sticky-option-item:active { border-color: var(--primary); }
-        .sticky-option-icon { color: var(--primary); flex-shrink: 0; display: flex; align-items: center; }
-        .sticky-option-check { flex-shrink: 0; }
-        .sticky-option-check input[type="checkbox"] { accent-color: var(--primary); width: 14px; height: 14px; cursor: pointer; margin: 0; }
+        .sticky-options-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0 4px; border-top: 1px solid var(--border); margin-top: 8px; }
+        .sticky-option-sort { display: flex; align-items: center; gap: 6px; padding: 6px 0; color: var(--text-dark); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .sticky-option-sort .sort-icon { display: flex; align-items: center; color: var(--primary); }
+        .sticky-option-sort .sort-label { font-weight: 500; }
+        .sticky-option-sort:active .sort-label { color: var(--primary); }
+        .sticky-option-check { display: flex; align-items: center; gap: 6px; padding: 6px 0; color: var(--text-dark); font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .sticky-option-check input[type="checkbox"] { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; margin: 0; }
 
         .sidepanel-reset:hover {
                 background: var(--border);
@@ -1693,11 +1694,11 @@
                 <select id="stickyFilterBehandlungserfolg"><option value="">Alle Erfolge</option></select>
             </div>
             <div class="sticky-options-row">
-                <div class="sticky-option-item" id="stickySortBtn" role="button" tabindex="0">
-                    <span class="sort-icon sticky-option-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
+                <div class="sticky-option-sort" id="stickySortBtn" role="button" tabindex="0">
+                    <span class="sort-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></span>
                     <span class="sort-label">Neueste zuerst</span>
                 </div>
-                <label class="sticky-option-item sticky-option-check" for="stickyDetailCheck">
+                <label class="sticky-option-check" for="stickyDetailCheck">
                     <input type="checkbox" id="stickyDetailCheck">
                     <span>Nur ausführliche</span>
                 </label>
