@@ -921,6 +921,56 @@
             opacity: 1;
             transform: scale(1.25);
         }
+        /* Shop CTA */
+        .shop-cta {
+            text-align: center;
+            padding: 32px 20px;
+            margin-top: 24px;
+        }
+        .shop-cta-text {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .shop-cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .shop-cta-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        .shop-cta-btn svg {
+            flex-shrink: 0;
+        }
+        /* Sidepanel CTA variant */
+        .sidepanel-cta {
+            text-align: center;
+            padding: 16px 0;
+            border-top: 1px solid var(--border);
+            margin-top: 20px;
+        }
+        .sidepanel-cta .shop-cta-text {
+            font-size: 0.82rem;
+            margin-bottom: 10px;
+        }
+        .sidepanel-cta .shop-cta-btn {
+            font-size: 0.8rem;
+            padding: 8px 18px;
+        }
         /* Sidepanel footer */
         .sidepanel-footer {
             margin-top: auto;
@@ -2070,6 +2120,13 @@
             <span>Nur ausführliche Berichte</span>
         </label>
         <div id="sidepanelCount" class="sidepanel-count"></div>
+        <div class="sidepanel-cta">
+            <p class="shop-cta-text">Bereit für deine eigene Erfahrung?</p>
+            <a href="https://frequenzshop.com" target="_blank" rel="noopener" class="shop-cta-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Produkte entdecken
+            </a>
+        </div>
         <div class="sidepanel-footer">
             <button type="button" class="sidepanel-footer-link" id="sidepanelFeedbackLink">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -2337,6 +2394,13 @@
                 </div>
                 <div id="cardsContainer" class="cards-grid"></div>
                 <button id="loadMoreBtn" class="btn-load-more">Mehr laden</button>
+                <div class="shop-cta">
+                    <p class="shop-cta-text">Inspiriert von diesen Erfahrungen?<br>Finde dein Produkt und mache deine eigene Erfahrung.</p>
+                    <a href="https://frequenzshop.com" target="_blank" rel="noopener" class="shop-cta-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        Jetzt Produkte entdecken
+                    </a>
+                </div>
             </div>
 
             <!-- NO RESULTS -->
