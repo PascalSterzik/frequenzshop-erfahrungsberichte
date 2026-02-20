@@ -71,6 +71,8 @@
         body.dark-mode .auth-box {
             background: #241e2a;
         }
+        body.dark-mode input::placeholder { color: var(--text-light); opacity: 1; }
+        body.dark-mode select { color: var(--text-dark); }
         body.dark-mode .form-group input {
             background: #1a1520;
             color: var(--text-dark);
@@ -509,7 +511,8 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 15px;
-            background: white;
+            background: var(--card-bg);
+            color: var(--text-dark);
             transition: all 0.2s ease;
             font-family: 'Inter', sans-serif;
         }
@@ -1295,21 +1298,20 @@
             font-family: 'Inter', sans-serif;
         }
         .sticky-filter-btn {
+            width: 40px;
             height: 40px;
-            padding: 0 14px;
+            padding: 0;
             border: 1px solid var(--border);
             border-radius: 8px;
             background: var(--card-bg);
             color: var(--secondary);
-            font-size: 13px;
-            font-weight: 500;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
-            white-space: nowrap;
+            justify-content: center;
             transition: all 0.2s;
             flex-shrink: 0;
+            position: relative;
         }
         .sticky-filter-btn:hover {
             background: var(--background);
@@ -1334,6 +1336,8 @@
         .sticky-filters-grid select {
             width: 100%;
             padding: 8px 10px;
+            color: var(--text-dark);
+            background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 13px;
@@ -1386,7 +1390,8 @@
                 border: 1px solid var(--border);
                 border-radius: 8px;
                 font-size: 14px;
-                background: var(--background);
+                background: var(--card-bg);
+                color: var(--text-dark);
                 font-family: 'Inter', sans-serif;
                 transition: all 0.2s;
             }
@@ -1460,9 +1465,10 @@
         .sidepanel-sort-row { margin-bottom: 12px; }
         .detail-filter-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; padding: 6px 0; margin-bottom: 8px; }
         .detail-filter-label input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer; }
-        .sticky-sort-row { display: flex; gap: 8px; padding: 8px 0 4px; align-items: center; }
-        .sticky-sort-row .sort-toggle-btn { flex: 1; padding: 7px 10px; font-size: 12px; }
-        .detail-filter-mobile { font-size: 12px; margin-bottom: 0; white-space: nowrap; }
+        .sticky-sort-row { display: flex; gap: 8px; padding: 10px 0 4px; align-items: center; }
+        .sticky-sort-row .sort-toggle-btn { flex: 0 0 auto; padding: 7px 12px; font-size: 12px; width: auto; border-radius: 20px; }
+        .sticky-sort-row .sort-toggle-btn .sort-icon svg { width: 12px; height: 12px; }
+        .detail-filter-mobile { font-size: 12px; margin-bottom: 0; white-space: nowrap; padding: 4px 0; }
 
         .sidepanel-reset:hover {
                 background: var(--border);
@@ -1674,7 +1680,7 @@
                 <span class="sticky-search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
                 <input type="text" id="stickySearchInput" placeholder="Suche...">
             </div>
-            <button type="button" id="stickyFilterBtn" class="sticky-filter-btn"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span> Filter</button>
+            <button type="button" id="stickyFilterBtn" class="sticky-filter-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></button>
         </div>
         <div id="stickyFiltersDropdown" class="sticky-filters-dropdown">
             <div class="sticky-filters-grid">
@@ -2484,7 +2490,7 @@
                 if (!stickyFilterBtn) return;
                 var count = Object.keys(activeFilters).length;
                 stickyFilterBtn.classList.toggle('has-filters', count > 0);
-                stickyFilterBtn.innerHTML = '<span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span> Filter' + (count > 0 ? ' (' + count + ')' : '');
+                stickyFilterBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>' + (count > 0 ? '<span style="position:absolute;top:-4px;right:-4px;background:var(--primary);color:white;border-radius:50%;width:16px;height:16px;font-size:10px;display:flex;align-items:center;justify-content:center">' + count + '</span>' : '');
             }
 
             function updateSidepanelCount() {
