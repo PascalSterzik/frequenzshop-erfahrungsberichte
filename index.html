@@ -2378,6 +2378,43 @@
         </div>
     </div>
 
+    <!-- EXPERIENCE MODAL -->
+    <div class="feedback-overlay" id="experienceOverlay">
+        <div class="feedback-box">
+            <div class="feedback-header">
+                <h2>Erfahrung teilen</h2>
+                <button type="button" class="feedback-close" id="experienceClose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="feedback-body">
+                <div class="feedback-field">
+                    <label>Name</label>
+                    <input type="text" id="expName" disabled>
+                </div>
+                <div class="feedback-field">
+                    <label>E-Mail</label>
+                    <input type="email" id="expEmail" disabled>
+                </div>
+                <div class="feedback-field">
+                    <label>Beschwerde / Anwendungsbereich</label>
+                    <input type="text" id="expCondition" placeholder="z.B. Rückenschmerzen, Schlafprobleme...">
+                </div>
+                <div class="feedback-field">
+                    <label>Verwendetes Produkt</label>
+                    <input type="text" id="expProduct" placeholder="z.B. WasserVitalisierer, Frequenzmatte...">
+                </div>
+                <div class="feedback-field">
+                    <label>Dein Erfahrungsbericht</label>
+                    <textarea id="expMessage" placeholder="Beschreibe deine Erfahrung mit Frequenztherapie..."></textarea>
+                </div>
+                <button type="button" class="feedback-submit-btn" id="expSubmitBtn">Erfahrung absenden</button>
+                <div class="feedback-msg" id="expMsg"></div>
+                <div class="feedback-info">Dein Bericht wird an <a href="mailto:info@frequenzshop.com">info@frequenzshop.com</a> gesendet.</div>
+            </div>
+        </div>
+    </div>
+
     <!-- FEEDBACK MODAL -->
     <div class="feedback-overlay" id="feedbackOverlay">
         <div class="feedback-box">
@@ -2391,7 +2428,6 @@
                 <div class="feedback-category-row" id="feedbackCategoryRow">
                     <button type="button" class="feedback-cat-btn active" data-cat="feedback">Feedback</button>
                     <button type="button" class="feedback-cat-btn" data-cat="vorschlag">Verbesserungsvorschlag</button>
-                    <button type="button" class="feedback-cat-btn" data-cat="erfahrung">Erfahrungsbericht</button>
                 </div>
                 <div class="feedback-field">
                     <label>Name</label>
@@ -2401,17 +2437,9 @@
                     <label>E-Mail</label>
                     <input type="email" id="feedbackEmail" disabled>
                 </div>
-                <div class="feedback-field" id="feedbackConditionField" style="display:none">
-                    <label>Beschwerde / Anwendungsbereich</label>
-                    <input type="text" id="feedbackCondition" placeholder="z.B. Rückenschmerzen, Schlafprobleme...">
-                </div>
-                <div class="feedback-field" id="feedbackProductField" style="display:none">
-                    <label>Verwendetes Produkt</label>
-                    <input type="text" id="feedbackProduct" placeholder="z.B. WasserVitalisierer, Frequenzmatte...">
-                </div>
                 <div class="feedback-field">
-                    <label id="feedbackMsgLabel">Deine Nachricht</label>
-                    <textarea id="feedbackMessage" placeholder="Schreibe hier deine Nachricht..."></textarea>
+                    <label id="feedbackMsgLabel">Dein Feedback</label>
+                    <textarea id="feedbackMessage" placeholder="Schreibe hier dein Feedback..."></textarea>
                 </div>
                 <button type="button" class="feedback-submit-btn" id="feedbackSubmitBtn">Absenden</button>
                 <div class="feedback-msg" id="feedbackMsg"></div>
@@ -2670,34 +2698,96 @@
                 });
             }
 
+            // === EXPERIENCE MODAL ===
+            var experienceOverlay = document.getElementById('experienceOverlay');
+            var experienceClose = document.getElementById('experienceClose');
+            var expSubmitBtn = document.getElementById('expSubmitBtn');
+
             // === FEEDBACK MODAL ===
             var feedbackOverlay = document.getElementById('feedbackOverlay');
             var feedbackClose = document.getElementById('feedbackClose');
-            var menuShareExperience = document.getElementById('menuShareExperience');
-            var menuFeedback = document.getElementById('menuFeedback');
-            var sidepanelFeedbackLink = document.getElementById('sidepanelFeedbackLink');
             var feedbackCategoryRow = document.getElementById('feedbackCategoryRow');
             var feedbackSubmitBtn = document.getElementById('feedbackSubmitBtn');
             var feedbackTitle = document.getElementById('feedbackTitle');
             var feedbackMsgLabel = document.getElementById('feedbackMsgLabel');
-            var feedbackConditionField = document.getElementById('feedbackConditionField');
-            var feedbackProductField = document.getElementById('feedbackProductField');
             var currentFeedbackCat = 'feedback';
 
-            function openFeedback(category) {
-                currentFeedbackCat = category || 'feedback';
-                // Update active category button
+            var menuShareExperience = document.getElementById('menuShareExperience');
+            var menuFeedback = document.getElementById('menuFeedback');
+            var sidepanelFeedbackLink = document.getElementById('sidepanelFeedbackLink');
+
+            // --- Experience modal ---
+            function openExperience() {
+                if (currentUser) {
+                    document.getElementById('expName').value = currentUser.name || '';
+                    document.getElementById('expEmail').value = currentUser.email || '';
+                }
+                document.getElementById('expCondition').value = '';
+                document.getElementById('expProduct').value = '';
+                document.getElementById('expMessage').value = '';
+                var msgEl = document.getElementById('expMsg');
+                msgEl.className = 'feedback-msg';
+                msgEl.textContent = '';
+                expSubmitBtn.disabled = false;
+                expSubmitBtn.textContent = 'Erfahrung absenden';
+                experienceOverlay.classList.add('open');
+            }
+
+            if (experienceClose) {
+                experienceClose.addEventListener('click', function() {
+                    experienceOverlay.classList.remove('open');
+                });
+            }
+            if (experienceOverlay) {
+                experienceOverlay.addEventListener('click', function(e) {
+                    if (e.target === experienceOverlay) experienceOverlay.classList.remove('open');
+                });
+            }
+
+            if (expSubmitBtn) {
+                expSubmitBtn.addEventListener('click', function() {
+                    var message = document.getElementById('expMessage').value.trim();
+                    if (!message) {
+                        var msgEl = document.getElementById('expMsg');
+                        msgEl.className = 'feedback-msg error';
+                        msgEl.textContent = 'Bitte beschreibe deine Erfahrung.';
+                        return;
+                    }
+                    var userName = document.getElementById('expName').value || 'Unbekannt';
+                    var userEmail = document.getElementById('expEmail').value || '';
+                    var condition = document.getElementById('expCondition').value.trim();
+                    var product = document.getElementById('expProduct').value.trim();
+
+                    var subject = 'Erfahrungsbericht von ' + userName + ' - Erfahrungsberichte-App';
+                    var body = 'Kategorie: Erfahrungsbericht\n';
+                    body += 'Name: ' + userName + '\n';
+                    body += 'E-Mail: ' + userEmail + '\n';
+                    if (condition) body += 'Beschwerde/Bereich: ' + condition + '\n';
+                    if (product) body += 'Produkt: ' + product + '\n';
+                    body += '\nErfahrungsbericht:\n' + message;
+
+                    window.location.href = 'mailto:info@frequenzshop.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+
+                    expSubmitBtn.disabled = true;
+                    expSubmitBtn.textContent = 'Gesendet!';
+                    var msgEl = document.getElementById('expMsg');
+                    msgEl.className = 'feedback-msg success';
+                    msgEl.textContent = 'Dein E-Mail-Programm wurde ge\u00f6ffnet. Vielen Dank!';
+                    setTimeout(function() { experienceOverlay.classList.remove('open'); }, 3000);
+                });
+            }
+
+            // --- Feedback modal ---
+            function openFeedback(cat) {
+                currentFeedbackCat = cat || 'feedback';
                 feedbackCategoryRow.querySelectorAll('.feedback-cat-btn').forEach(function(btn) {
                     btn.classList.toggle('active', btn.dataset.cat === currentFeedbackCat);
                 });
                 updateFeedbackUI();
-                // Pre-fill user data
                 if (currentUser) {
                     document.getElementById('feedbackName').value = currentUser.name || '';
                     document.getElementById('feedbackEmail').value = currentUser.email || '';
                 }
-                document.getElementById('feedbackCondition').value = '';
-                document.getElementById('feedbackProduct').value = '';
                 document.getElementById('feedbackMessage').value = '';
                 var msgEl = document.getElementById('feedbackMsg');
                 msgEl.className = 'feedback-msg';
@@ -2708,28 +2798,19 @@
             }
 
             function updateFeedbackUI() {
-                var isExp = (currentFeedbackCat === 'erfahrung');
-                feedbackConditionField.style.display = isExp ? 'block' : 'none';
-                feedbackProductField.style.display = isExp ? 'block' : 'none';
-                if (currentFeedbackCat === 'feedback') {
-                    feedbackTitle.textContent = 'Feedback geben';
-                    feedbackMsgLabel.textContent = 'Dein Feedback';
-                } else if (currentFeedbackCat === 'vorschlag') {
+                if (currentFeedbackCat === 'vorschlag') {
                     feedbackTitle.textContent = 'Verbesserungsvorschlag';
                     feedbackMsgLabel.textContent = 'Dein Vorschlag';
                 } else {
-                    feedbackTitle.textContent = 'Erfahrung teilen';
-                    feedbackMsgLabel.textContent = 'Dein Erfahrungsbericht';
+                    feedbackTitle.textContent = 'Feedback geben';
+                    feedbackMsgLabel.textContent = 'Dein Feedback';
                 }
             }
 
-            // Category button click
             feedbackCategoryRow.querySelectorAll('.feedback-cat-btn').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     currentFeedbackCat = this.dataset.cat;
-                    feedbackCategoryRow.querySelectorAll('.feedback-cat-btn').forEach(function(b) {
-                        b.classList.remove('active');
-                    });
+                    feedbackCategoryRow.querySelectorAll('.feedback-cat-btn').forEach(function(b) { b.classList.remove('active'); });
                     this.classList.add('active');
                     updateFeedbackUI();
                 });
@@ -2745,10 +2826,9 @@
             if (menuShareExperience) {
                 menuShareExperience.addEventListener('click', function() {
                     userMenuDropdown.classList.remove('open');
-                    openFeedback('erfahrung');
+                    openExperience();
                 });
             }
-            // Open from sidepanel
             if (sidepanelFeedbackLink) {
                 sidepanelFeedbackLink.addEventListener('click', function() {
                     openFeedback('feedback');
@@ -2757,15 +2837,11 @@
 
             // Close feedback
             if (feedbackClose) {
-                feedbackClose.addEventListener('click', function() {
-                    feedbackOverlay.classList.remove('open');
-                });
+                feedbackClose.addEventListener('click', function() { feedbackOverlay.classList.remove('open'); });
             }
             if (feedbackOverlay) {
                 feedbackOverlay.addEventListener('click', function(e) {
-                    if (e.target === feedbackOverlay) {
-                        feedbackOverlay.classList.remove('open');
-                    }
+                    if (e.target === feedbackOverlay) feedbackOverlay.classList.remove('open');
                 });
             }
 
@@ -2779,47 +2855,23 @@
                         msgEl.textContent = 'Bitte schreibe eine Nachricht.';
                         return;
                     }
-
                     var userName = document.getElementById('feedbackName').value || 'Unbekannt';
                     var userEmail = document.getElementById('feedbackEmail').value || '';
-
-                    var catLabels = {
-                        'feedback': 'Feedback',
-                        'vorschlag': 'Verbesserungsvorschlag',
-                        'erfahrung': 'Erfahrungsbericht'
-                    };
-                    var catLabel = catLabels[currentFeedbackCat] || 'Feedback';
+                    var catLabel = (currentFeedbackCat === 'vorschlag') ? 'Verbesserungsvorschlag' : 'Feedback';
                     var subject = catLabel + ' von ' + userName + ' - Erfahrungsberichte-App';
-
                     var body = 'Kategorie: ' + catLabel + '\n';
                     body += 'Name: ' + userName + '\n';
                     body += 'E-Mail: ' + userEmail + '\n';
-
-                    if (currentFeedbackCat === 'erfahrung') {
-                        var condition = document.getElementById('feedbackCondition').value.trim();
-                        var product = document.getElementById('feedbackProduct').value.trim();
-                        if (condition) body += 'Beschwerde/Bereich: ' + condition + '\n';
-                        if (product) body += 'Produkt: ' + product + '\n';
-                    }
-
                     body += '\nNachricht:\n' + message;
 
-                    var mailtoLink = 'mailto:info@frequenzshop.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+                    window.location.href = 'mailto:info@frequenzshop.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 
-                    // Open mailto
-                    window.location.href = mailtoLink;
-
-                    // Show success
                     feedbackSubmitBtn.disabled = true;
                     feedbackSubmitBtn.textContent = 'Gesendet!';
                     var msgEl = document.getElementById('feedbackMsg');
                     msgEl.className = 'feedback-msg success';
                     msgEl.textContent = 'Dein E-Mail-Programm wurde ge\u00f6ffnet. Vielen Dank!';
-
-                    // Close after delay
-                    setTimeout(function() {
-                        feedbackOverlay.classList.remove('open');
-                    }, 3000);
+                    setTimeout(function() { feedbackOverlay.classList.remove('open'); }, 3000);
                 });
             }
 
