@@ -870,6 +870,57 @@
         .feedback-info a:hover {
             text-decoration: underline;
         }
+        /* Satisfaction slider */
+        .satisfaction-slider-wrap {
+            margin-top: 6px;
+        }
+        .satisfaction-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            outline: none;
+            transition: background 0.2s;
+        }
+        .satisfaction-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .satisfaction-slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .satisfaction-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            padding: 0 2px;
+        }
+        .sat-emoji {
+            font-size: 1.4rem;
+            opacity: 0.35;
+            transition: opacity 0.2s, transform 0.2s;
+            cursor: pointer;
+            user-select: none;
+        }
+        .sat-emoji.active {
+            opacity: 1;
+            transform: scale(1.25);
+        }
         /* Sidepanel footer */
         .sidepanel-footer {
             margin-top: 24px;
@@ -2389,16 +2440,8 @@
             </div>
             <div class="feedback-body">
                 <div class="feedback-field">
-                    <label>Name</label>
-                    <input type="text" id="expName" disabled>
-                </div>
-                <div class="feedback-field">
-                    <label>E-Mail</label>
-                    <input type="email" id="expEmail" disabled>
-                </div>
-                <div class="feedback-field">
                     <label>Beschwerde / Anwendungsbereich</label>
-                    <input type="text" id="expCondition" placeholder="z.B. Rückenschmerzen, Schlafprobleme...">
+                    <input type="text" id="expCondition" placeholder="z.B. R&#xFC;ckenschmerzen, Schlafprobleme...">
                 </div>
                 <div class="feedback-field">
                     <label>Verwendetes Produkt</label>
@@ -2419,29 +2462,30 @@
     <div class="feedback-overlay" id="feedbackOverlay">
         <div class="feedback-box">
             <div class="feedback-header">
-                <h2 id="feedbackTitle">Feedback geben</h2>
+                <h2>Feedback geben</h2>
                 <button type="button" class="feedback-close" id="feedbackClose">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
             <div class="feedback-body">
-                <div class="feedback-category-row" id="feedbackCategoryRow">
-                    <button type="button" class="feedback-cat-btn active" data-cat="feedback">Feedback</button>
-                    <button type="button" class="feedback-cat-btn" data-cat="vorschlag">Verbesserungsvorschlag</button>
+                <div class="feedback-field">
+                    <label>Wie zufrieden bist du bisher?</label>
+                    <div class="satisfaction-slider-wrap">
+                        <input type="range" id="feedbackSatisfaction" min="1" max="5" value="3" class="satisfaction-slider">
+                        <div class="satisfaction-labels">
+                            <span class="sat-emoji" data-val="1">&#x1F620;</span>
+                            <span class="sat-emoji" data-val="2">&#x1F610;</span>
+                            <span class="sat-emoji" data-val="3">&#x1F642;</span>
+                            <span class="sat-emoji" data-val="4">&#x1F604;</span>
+                            <span class="sat-emoji" data-val="5">&#x1F929;</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="feedback-field">
-                    <label>Name</label>
-                    <input type="text" id="feedbackName" disabled>
+                    <label>Dein Feedback</label>
+                    <textarea id="feedbackMessage" placeholder="Was l&#xE4;uft gut? Was k&#xF6;nnen wir verbessern?"></textarea>
                 </div>
-                <div class="feedback-field">
-                    <label>E-Mail</label>
-                    <input type="email" id="feedbackEmail" disabled>
-                </div>
-                <div class="feedback-field">
-                    <label id="feedbackMsgLabel">Dein Feedback</label>
-                    <textarea id="feedbackMessage" placeholder="Schreibe hier dein Feedback..."></textarea>
-                </div>
-                <button type="button" class="feedback-submit-btn" id="feedbackSubmitBtn">Absenden</button>
+                <button type="button" class="feedback-submit-btn" id="feedbackSubmitBtn">Feedback absenden</button>
                 <div class="feedback-msg" id="feedbackMsg"></div>
                 <div class="feedback-info">Deine Nachricht wird an <a href="mailto:info@frequenzshop.com">info@frequenzshop.com</a> gesendet.</div>
             </div>
@@ -2706,22 +2750,34 @@
             // === FEEDBACK MODAL ===
             var feedbackOverlay = document.getElementById('feedbackOverlay');
             var feedbackClose = document.getElementById('feedbackClose');
-            var feedbackCategoryRow = document.getElementById('feedbackCategoryRow');
             var feedbackSubmitBtn = document.getElementById('feedbackSubmitBtn');
-            var feedbackTitle = document.getElementById('feedbackTitle');
-            var feedbackMsgLabel = document.getElementById('feedbackMsgLabel');
-            var currentFeedbackCat = 'feedback';
+            var feedbackSatisfaction = document.getElementById('feedbackSatisfaction');
 
             var menuShareExperience = document.getElementById('menuShareExperience');
             var menuFeedback = document.getElementById('menuFeedback');
             var sidepanelFeedbackLink = document.getElementById('sidepanelFeedbackLink');
 
+            // --- Satisfaction slider ---
+            function updateSatEmojis(val) {
+                document.querySelectorAll('.sat-emoji').forEach(function(em) {
+                    em.classList.toggle('active', parseInt(em.dataset.val) === parseInt(val));
+                });
+            }
+            if (feedbackSatisfaction) {
+                feedbackSatisfaction.addEventListener('input', function() {
+                    updateSatEmojis(this.value);
+                });
+                // Click on emoji to set slider
+                document.querySelectorAll('.sat-emoji').forEach(function(em) {
+                    em.addEventListener('click', function() {
+                        feedbackSatisfaction.value = this.dataset.val;
+                        updateSatEmojis(this.dataset.val);
+                    });
+                });
+            }
+
             // --- Experience modal ---
             function openExperience() {
-                if (currentUser) {
-                    document.getElementById('expName').value = currentUser.name || '';
-                    document.getElementById('expEmail').value = currentUser.email || '';
-                }
                 document.getElementById('expCondition').value = '';
                 document.getElementById('expProduct').value = '';
                 document.getElementById('expMessage').value = '';
@@ -2753,8 +2809,8 @@
                         msgEl.textContent = 'Bitte beschreibe deine Erfahrung.';
                         return;
                     }
-                    var userName = document.getElementById('expName').value || 'Unbekannt';
-                    var userEmail = document.getElementById('expEmail').value || '';
+                    var userName = (currentUser && currentUser.name) ? currentUser.name : 'Unbekannt';
+                    var userEmail = (currentUser && currentUser.email) ? currentUser.email : '';
                     var condition = document.getElementById('expCondition').value.trim();
                     var product = document.getElementById('expProduct').value.trim();
 
@@ -2778,49 +2834,25 @@
             }
 
             // --- Feedback modal ---
-            function openFeedback(cat) {
-                currentFeedbackCat = cat || 'feedback';
-                feedbackCategoryRow.querySelectorAll('.feedback-cat-btn').forEach(function(btn) {
-                    btn.classList.toggle('active', btn.dataset.cat === currentFeedbackCat);
-                });
-                updateFeedbackUI();
-                if (currentUser) {
-                    document.getElementById('feedbackName').value = currentUser.name || '';
-                    document.getElementById('feedbackEmail').value = currentUser.email || '';
-                }
+            function openFeedback() {
                 document.getElementById('feedbackMessage').value = '';
+                if (feedbackSatisfaction) {
+                    feedbackSatisfaction.value = 3;
+                    updateSatEmojis(3);
+                }
                 var msgEl = document.getElementById('feedbackMsg');
                 msgEl.className = 'feedback-msg';
                 msgEl.textContent = '';
                 feedbackSubmitBtn.disabled = false;
-                feedbackSubmitBtn.textContent = 'Absenden';
+                feedbackSubmitBtn.textContent = 'Feedback absenden';
                 feedbackOverlay.classList.add('open');
             }
-
-            function updateFeedbackUI() {
-                if (currentFeedbackCat === 'vorschlag') {
-                    feedbackTitle.textContent = 'Verbesserungsvorschlag';
-                    feedbackMsgLabel.textContent = 'Dein Vorschlag';
-                } else {
-                    feedbackTitle.textContent = 'Feedback geben';
-                    feedbackMsgLabel.textContent = 'Dein Feedback';
-                }
-            }
-
-            feedbackCategoryRow.querySelectorAll('.feedback-cat-btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    currentFeedbackCat = this.dataset.cat;
-                    feedbackCategoryRow.querySelectorAll('.feedback-cat-btn').forEach(function(b) { b.classList.remove('active'); });
-                    this.classList.add('active');
-                    updateFeedbackUI();
-                });
-            });
 
             // Open from menu
             if (menuFeedback) {
                 menuFeedback.addEventListener('click', function() {
                     userMenuDropdown.classList.remove('open');
-                    openFeedback('feedback');
+                    openFeedback();
                 });
             }
             if (menuShareExperience) {
@@ -2831,7 +2863,7 @@
             }
             if (sidepanelFeedbackLink) {
                 sidepanelFeedbackLink.addEventListener('click', function() {
-                    openFeedback('feedback');
+                    openFeedback();
                 });
             }
 
@@ -2855,14 +2887,18 @@
                         msgEl.textContent = 'Bitte schreibe eine Nachricht.';
                         return;
                     }
-                    var userName = document.getElementById('feedbackName').value || 'Unbekannt';
-                    var userEmail = document.getElementById('feedbackEmail').value || '';
-                    var catLabel = (currentFeedbackCat === 'vorschlag') ? 'Verbesserungsvorschlag' : 'Feedback';
-                    var subject = catLabel + ' von ' + userName + ' - Erfahrungsberichte-App';
-                    var body = 'Kategorie: ' + catLabel + '\n';
+                    var userName = (currentUser && currentUser.name) ? currentUser.name : 'Unbekannt';
+                    var userEmail = (currentUser && currentUser.email) ? currentUser.email : '';
+                    var satVal = feedbackSatisfaction ? feedbackSatisfaction.value : '?';
+                    var satLabels = {'1': 'Sehr unzufrieden', '2': 'Unzufrieden', '3': 'Neutral', '4': 'Zufrieden', '5': 'Sehr zufrieden'};
+                    var satText = satLabels[satVal] || satVal;
+
+                    var subject = 'Feedback von ' + userName + ' - Erfahrungsberichte-App';
+                    var body = 'Kategorie: Feedback\n';
                     body += 'Name: ' + userName + '\n';
                     body += 'E-Mail: ' + userEmail + '\n';
-                    body += '\nNachricht:\n' + message;
+                    body += 'Zufriedenheit: ' + satText + ' (' + satVal + '/5)\n';
+                    body += '\nFeedback:\n' + message;
 
                     window.location.href = 'mailto:info@frequenzshop.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 
