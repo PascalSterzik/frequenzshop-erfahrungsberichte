@@ -2540,7 +2540,6 @@
                 updateSidepanelCount();
             });
 
-            function updateStickyFilterBtnState() {
 
             // SORT TOGGLE + DETAIL FILTER
             var sortBtns = [document.getElementById('sidepanelSortBtn'), document.getElementById('stickySortBtn')];
@@ -2580,6 +2579,8 @@
                 }
             });
 
+
+                        function updateStickyFilterBtnState() {
                 if (!stickyFilterBtn) return;
                 var count = Object.keys(activeFilters).length;
                 stickyFilterBtn.classList.toggle('has-filters', count > 0);
