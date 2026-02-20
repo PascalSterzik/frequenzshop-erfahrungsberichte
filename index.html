@@ -3331,8 +3331,11 @@
                 };
                 document.addEventListener('click', triggerOverlay);
                 document.addEventListener('scroll', triggerOverlay, true);
+            } else if (document.body.classList.contains('preview')) {
+                // Duplicate call during preview (checkSession + onAuthStateChange both fire) — ignore
+                return;
             } else {
-                // Returning to auth (e.g. after logout) — show overlay immediately
+                // Returning to auth after logout — show overlay immediately
                 document.body.classList.add('preview');
                 document.getElementById('appScreen').classList.add('active');
                 document.getElementById('authScreen').style.display = 'flex';
