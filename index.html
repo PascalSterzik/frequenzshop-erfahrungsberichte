@@ -3545,7 +3545,11 @@
                     entry.produkt.forEach(p => { if (p) produkte.add(p); });
                 }
                 if (entry.behandlungstyp) {
-                    behandlungstypen.add(entry.behandlungstyp);
+                    if (Array.isArray(entry.behandlungstyp)) {
+                        entry.behandlungstyp.forEach(b => { if (b) behandlungstypen.add(b); });
+                    } else if (entry.behandlungstyp) {
+                        behandlungstypen.add(entry.behandlungstyp);
+                    }
                 }
                 if (entry.behandlungserfolg) {
                     behandlungserfolge.add(entry.behandlungserfolg);
