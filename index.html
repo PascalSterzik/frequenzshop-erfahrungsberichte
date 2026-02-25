@@ -1029,20 +1029,33 @@
             align-items: center;
             gap: 8px;
             padding: 10px 24px;
-            background: var(--primary);
-            color: #fff;
-            border: none;
+            background: #b2759c;
+            color: #ffffff !important;
+            border: 2px solid #b2759c;
             border-radius: 8px;
             font-size: 0.9rem;
             font-weight: 600;
             font-family: inherit;
             cursor: pointer;
-            text-decoration: none;
-            transition: background 0.2s, transform 0.15s;
+            text-decoration: none !important;
+            transition: background 0.2s, transform 0.15s, border-color 0.2s;
         }
         .shop-cta-btn:hover {
-            background: var(--primary-hover);
+            background: #8a5a7a;
+            border-color: #8a5a7a;
             transform: translateY(-1px);
+        }
+        .shop-cta-btn:visited {
+            color: #ffffff !important;
+        }
+        body.dark-mode .shop-cta-btn {
+            background: #b2759c;
+            color: #ffffff !important;
+            border-color: #b2759c;
+        }
+        body.dark-mode .shop-cta-btn:hover {
+            background: #d4a5c4;
+            border-color: #d4a5c4;
         }
         .shop-cta-btn svg {
             flex-shrink: 0;
@@ -3670,6 +3683,8 @@
             document.querySelector('.result-count').textContent = filtered.length;
             var src = document.querySelector('.sticky-result-count');
             if (src) src.textContent = filtered.length;
+            var spc = document.getElementById('sidepanelCount');
+            if (spc) spc.innerHTML = '<strong>' + filtered.length + '</strong> Erfahrungsberichte angezeigt';
             
             const cardsContainer = document.getElementById('cardsContainer');
             cardsContainer.innerHTML = '';
