@@ -2814,6 +2814,24 @@
                     <div class="settings-msg" id="passwordMsg"></div>
                 </div>
 
+                <!-- Benachrichtigungen -->
+                <div class="settings-section">
+                    <div class="settings-section-title">Benachrichtigungen</div>
+                    <div class="newsletter-options" style="margin-top:8px;">
+                        <label class="newsletter-option">
+                            <input type="checkbox" id="settingsNotifyNew">
+                            <span>Benachrichtigung bei neuen Erfahrungsberichten</span>
+                        </label>
+                        <label class="newsletter-option">
+                            <input type="checkbox" id="settingsNewsletter">
+                            <span>Newsletter abonnieren</span>
+                        </label>
+                        <div class="newsletter-hint">Etwa 1x pro Monat, jederzeit abbestellbar.</div>
+                    </div>
+                    <button type="button" class="settings-btn settings-btn-primary" id="saveNewsletterBtn">Einstellungen speichern</button>
+                    <div class="settings-msg" id="newsletterMsg"></div>
+                </div>
+
                 <!-- Delete Account -->
                 <div class="settings-section">
                     <div class="settings-section-title">Gefahrenzone</div>
@@ -3374,7 +3392,7 @@
                 document.getElementById('settingsNewPassword').value = '';
                 document.getElementById('settingsConfirmPassword').value = '';
                 // Clear all messages
-                ['nameMsg', 'emailMsg', 'passwordMsg', 'deleteMsg'].forEach(function(id) {
+                ['nameMsg', 'emailMsg', 'passwordMsg', 'deleteMsg', 'newsletterMsg'].forEach(function(id) {
                     var el = document.getElementById(id);
                     if (el) { el.className = 'settings-msg'; el.textContent = ''; }
                 });
@@ -3388,6 +3406,56 @@
                     el.textContent = text;
                 }
             }
+
+            // Save Newsletter Preferences (Settings)
+            document.getElementById('saveNewsletterBtn').addEventListener('click', async function() {
+                var btn = this;
+                var notifyNew = document.getElementById('settingsNotifyNew').checked;
+                var newsletter = document.getElementById('settingsNewsletter').checked;
+
+                if (!notifyNew && !newsletter) {
+                    showSettingsMsg('newsletterMsg', 'error', 'Bitte mindestens eine Option auswählen.');
+                    return;
+                }
+
+                if (!currentUser || !currentUser.email) {
+                    showSettingsMsg('newsletterMsg', 'error', 'Keine E-Mail-Adresse gefunden.');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = 'Wird eingetragen...';
+                try {
+                    var response = await fetch(NEWSLETTER_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: currentUser.email,
+                            vorname: currentUser.name || '',
+                            lists: {
+                                erfahrungsberichte: notifyNew,
+                                newsletter: newsletter
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        var errData = await response.json().catch(function() { return {}; });
+                        throw new Error(errData.message || 'Fehler beim Eintragen');
+                    }
+
+                    var parts = [];
+                    if (notifyNew) parts.push('Erfahrungsberichte-Updates');
+                    if (newsletter) parts.push('Newsletter');
+                    showSettingsMsg('newsletterMsg', 'success', 'Eingetragen: ' + parts.join(' & '));
+                } catch (err) {
+                    showSettingsMsg('newsletterMsg', 'error', 'Eintragung fehlgeschlagen. Versuche es später erneut oder melde dich auf frequenzshop.com an.');
+                    console.warn('Newsletter settings save failed:', err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Einstellungen speichern';
+                }
+            });
 
             // Save Name
             document.getElementById('saveNameBtn').addEventListener('click', async function() {
