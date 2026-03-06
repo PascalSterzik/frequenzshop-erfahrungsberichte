@@ -3893,6 +3893,127 @@
             });
         }
 
+        // ===== MULTI-SELECT FUNCTIONS (outer scope, used by populateFilters + IIFE) =====
+        function initializeMultiSelects() {
+            var filterIds = ['filterIndikation', 'filterKorperteil', 'filterProdukt', 'filterBehandlungstyp', 'filterBehandlungserfolg'];
+            filterIds.forEach(id => {
+                var selectEl = document.getElementById(id);
+                if (!selectEl) return;
+
+                // Create wrapper
+                var wrapper = document.createElement('div');
+                wrapper.className = 'multi-select';
+                wrapper.id = 'multiselect-' + id;
+                selectEl.parentNode.insertBefore(wrapper, selectEl);
+
+                // Create button
+                var btn = document.createElement('button');
+                btn.className = 'multi-select-btn';
+                btn.type = 'button';
+                btn.innerHTML = '<span class="multi-select-btn-text">Alle auswählen</span><span class="multi-select-btn-arrow">▼</span>';
+
+                // Create dropdown
+                var dropdown = document.createElement('div');
+                dropdown.className = 'multi-select-dropdown';
+
+                // Populate options from select element
+                for (var i = 1; i < selectEl.options.length; i++) {
+                    var opt = selectEl.options[i];
+                    var optDiv = document.createElement('div');
+                    optDiv.className = 'multi-select-option';
+                    var checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = opt.value;
+                    checkbox.dataset.filterId = id;
+                    var label = document.createElement('label');
+                    label.textContent = opt.textContent;
+                    optDiv.appendChild(checkbox);
+                    optDiv.appendChild(label);
+                    dropdown.appendChild(optDiv);
+
+                    // Checkbox change handler
+                    checkbox.addEventListener('change', function() {
+                        handleMultiSelectChange(this.dataset.filterId);
+                    });
+                }
+
+                wrapper.appendChild(btn);
+                wrapper.appendChild(dropdown);
+
+                // Button click to toggle dropdown
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    wrapper.classList.toggle('open');
+                });
+
+                // Hide original select
+                selectEl.style.display = 'none';
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.multi-select')) {
+                    document.querySelectorAll('.multi-select').forEach(ms => ms.classList.remove('open'));
+                }
+            });
+        }
+
+        function handleMultiSelectChange(filterId) {
+            var wrapper = document.getElementById('multiselect-' + filterId);
+            var checkboxes = wrapper.querySelectorAll('input[type="checkbox"]:checked');
+            var selectedValues = Array.from(checkboxes).map(cb => cb.value);
+            var filterName = filterId.replace('filter', '').toLowerCase();
+
+            if (selectedValues.length > 0) {
+                activeFilters[filterName] = selectedValues;
+            } else {
+                delete activeFilters[filterName];
+            }
+
+            updateMultiSelectButton(filterId);
+            displayedCount = 30;
+            renderFilterTags();
+            renderResults();
+            updateSidepanelCount();
+        }
+
+        function updateMultiSelectButton(filterId) {
+            var wrapper = document.getElementById('multiselect-' + filterId);
+            if (!wrapper) return;
+            var btn = wrapper.querySelector('.multi-select-btn');
+            var selectedCount = wrapper.querySelectorAll('input[type="checkbox"]:checked').length;
+
+            if (selectedCount > 0) {
+                btn.classList.add('has-selection');
+                btn.querySelector('.multi-select-btn-text').textContent = selectedCount + ' ausgewählt';
+            } else {
+                btn.classList.remove('has-selection');
+                btn.querySelector('.multi-select-btn-text').textContent = 'Alle auswählen';
+            }
+        }
+
+        function syncAllMultiSelects() {
+            var filterIds = ['filterIndikation', 'filterKorperteil', 'filterProdukt', 'filterBehandlungstyp', 'filterBehandlungserfolg'];
+            filterIds.forEach(id => {
+                var filterName = id.replace('filter', '').toLowerCase();
+                var wrapper = document.getElementById('multiselect-' + id);
+                if (!wrapper) return;
+
+                var checkboxes = wrapper.querySelectorAll('input[type="checkbox"]');
+                var selectedValues = activeFilters[filterName] || [];
+
+                checkboxes.forEach(cb => {
+                    cb.checked = selectedValues.includes(cb.value);
+                });
+
+                updateMultiSelectButton(id);
+            });
+        }
+
+        // Helpers declared early, defined inside IIFE (need outer scope access)
+        var updateSidepanelCount = function() {};
+        var updateStickyFilterBtnState = function() {};
+
         function setupEventListeners() {
             const searchInput = document.getElementById('searchInput');
             let searchTimeout;
@@ -3904,125 +4025,7 @@
                 }, 300);
             });
 
-            // Multi-select initialization happens after populateSelect
-            // (see initializeMultiSelects function below)
-
-            // Initialize multi-select dropdowns for all filters
-            function initializeMultiSelects() {
-                var filterIds = ['filterIndikation', 'filterKorperteil', 'filterProdukt', 'filterBehandlungstyp', 'filterBehandlungserfolg'];
-                filterIds.forEach(id => {
-                    var selectEl = document.getElementById(id);
-                    if (!selectEl) return;
-                    
-                    // Create wrapper
-                    var wrapper = document.createElement('div');
-                    wrapper.className = 'multi-select';
-                    wrapper.id = 'multiselect-' + id;
-                    selectEl.parentNode.insertBefore(wrapper, selectEl);
-                    
-                    // Create button
-                    var btn = document.createElement('button');
-                    btn.className = 'multi-select-btn';
-                    btn.type = 'button';
-                    btn.innerHTML = '<span class="multi-select-btn-text">Alle auswählen</span><span class="multi-select-btn-arrow">▼</span>';
-                    
-                    // Create dropdown
-                    var dropdown = document.createElement('div');
-                    dropdown.className = 'multi-select-dropdown';
-                    
-                    // Populate options from select element
-                    for (var i = 1; i < selectEl.options.length; i++) {
-                        var opt = selectEl.options[i];
-                        var optDiv = document.createElement('div');
-                        optDiv.className = 'multi-select-option';
-                        var checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.value = opt.value;
-                        checkbox.dataset.filterId = id;
-                        var label = document.createElement('label');
-                        label.textContent = opt.textContent;
-                        optDiv.appendChild(checkbox);
-                        optDiv.appendChild(label);
-                        dropdown.appendChild(optDiv);
-                        
-                        // Checkbox change handler
-                        checkbox.addEventListener('change', function() {
-                            handleMultiSelectChange(this.dataset.filterId);
-                        });
-                    }
-                    
-                    wrapper.appendChild(btn);
-                    wrapper.appendChild(dropdown);
-                    
-                    // Button click to toggle dropdown
-                    btn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        wrapper.classList.toggle('open');
-                    });
-                    
-                    // Hide original select
-                    selectEl.style.display = 'none';
-                });
-                
-                // Close dropdowns when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!e.target.closest('.multi-select')) {
-                        document.querySelectorAll('.multi-select').forEach(ms => ms.classList.remove('open'));
-                    }
-                });
-            }
-            
-            function handleMultiSelectChange(filterId) {
-                var wrapper = document.getElementById('multiselect-' + filterId);
-                var checkboxes = wrapper.querySelectorAll('input[type="checkbox"]:checked');
-                var selectedValues = Array.from(checkboxes).map(cb => cb.value);
-                var filterName = filterId.replace('filter', '').toLowerCase();
-                
-                if (selectedValues.length > 0) {
-                    activeFilters[filterName] = selectedValues;
-                } else {
-                    delete activeFilters[filterName];
-                }
-                
-                updateMultiSelectButton(filterId);
-                displayedCount = 30;
-                renderFilterTags();
-                renderResults();
-            }
-            
-            function updateMultiSelectButton(filterId) {
-                var wrapper = document.getElementById('multiselect-' + filterId);
-                var btn = wrapper.querySelector('.multi-select-btn');
-                var selectedCount = wrapper.querySelectorAll('input[type="checkbox"]:checked').length;
-                
-                if (selectedCount > 0) {
-                    btn.classList.add('has-selection');
-                    btn.querySelector('.multi-select-btn-text').textContent = selectedCount + ' ausgewählt';
-                } else {
-                    btn.classList.remove('has-selection');
-                    btn.querySelector('.multi-select-btn-text').textContent = 'Alle auswählen';
-                }
-            }
-            
-            function syncAllMultiSelects() {
-                var filterIds = ['filterIndikation', 'filterKorperteil', 'filterProdukt', 'filterBehandlungstyp', 'filterBehandlungserfolg'];
-                filterIds.forEach(id => {
-                    var filterName = id.replace('filter', '').toLowerCase();
-                    var wrapper = document.getElementById('multiselect-' + id);
-                    if (!wrapper) return;
-                    
-                    var checkboxes = wrapper.querySelectorAll('input[type="checkbox"]');
-                    var selectedValues = activeFilters[filterName] || [];
-                    
-                    checkboxes.forEach(cb => {
-                        cb.checked = selectedValues.includes(cb.value);
-                    });
-                    
-                    updateMultiSelectButton(id);
-                });
-            }
-
-                        document.getElementById('loadMoreBtn').addEventListener('click', () => {
+            document.getElementById('loadMoreBtn').addEventListener('click', () => {
                 displayedCount += 30;
                 renderResults();
             });
@@ -4358,22 +4361,39 @@
             }
 
             // Sync filter changes across all three locations
+            // Sidepanel + sticky selects update activeFilters and sync to multi-select checkboxes
             filterTriples.forEach(function(triple) {
                 if (!triple.main) return;
-                // Sticky → main
+                var filterName = triple.main.id.replace('filter', '');
+                filterName = filterName.charAt(0).toLowerCase() + filterName.slice(1);
+
+                // Sticky → update activeFilters + sync all
                 if (triple.sticky) triple.sticky.addEventListener('change', function() {
-                    triple.main.value = triple.sticky.value;
-                    triple.main.dispatchEvent(new Event('change'));
+                    if (triple.sidepanel) triple.sidepanel.value = triple.sticky.value;
+                    if (triple.sticky.value) {
+                        activeFilters[filterName] = [triple.sticky.value];
+                    } else {
+                        delete activeFilters[filterName];
+                    }
+                    syncAllMultiSelects();
+                    displayedCount = 30;
+                    renderFilterTags();
+                    renderResults();
+                    updateStickyFilterBtnState();
+                    updateSidepanelCount();
                 });
-                // Sidepanel → main
+                // Sidepanel → update activeFilters + sync all
                 if (triple.sidepanel) triple.sidepanel.addEventListener('change', function() {
-                    triple.main.value = triple.sidepanel.value;
-                    triple.main.dispatchEvent(new Event('change'));
-                });
-                // Main → sync back to sticky + sidepanel
-                triple.main.addEventListener('change', function() {
-                    if (triple.sticky) triple.sticky.value = triple.main.value;
-                    if (triple.sidepanel) triple.sidepanel.value = triple.main.value;
+                    if (triple.sticky) triple.sticky.value = triple.sidepanel.value;
+                    if (triple.sidepanel.value) {
+                        activeFilters[filterName] = [triple.sidepanel.value];
+                    } else {
+                        delete activeFilters[filterName];
+                    }
+                    syncAllMultiSelects();
+                    displayedCount = 30;
+                    renderFilterTags();
+                    renderResults();
                     updateStickyFilterBtnState();
                     updateSidepanelCount();
                 });
@@ -4394,21 +4414,21 @@
                 updateSidepanelCount();
             });
 
-            function updateStickyFilterBtnState() {
+            updateStickyFilterBtnState = function() {
                 if (!stickyFilterBtn) return;
                 var count = 0;
                 Object.values(activeFilters).forEach(function(arr) { count += arr.length; });
                 stickyFilterBtn.classList.toggle('has-filters', count > 0);
                 stickyFilterBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>' + (count > 0 ? '<span style="position:absolute;top:-4px;right:-4px;background:var(--primary);color:white;border-radius:50%;width:16px;height:16px;font-size:10px;display:flex;align-items:center;justify-content:center">' + count + '</span>' : '');
-            }
+            };
 
-            function updateSidepanelCount() {
+            updateSidepanelCount = function() {
                 if (!sidepanelCount) return;
                 if (typeof getFilteredResults === 'function') {
                     var count = getFilteredResults().length;
                     sidepanelCount.innerHTML = '<strong>' + count + '</strong> Erfahrungsberichte angezeigt';
                 }
-            }
+            };
 
             // Copy options from main filters to sticky + sidepanel
             function syncFilterOptions() {
