@@ -3096,11 +3096,18 @@
             registerBtn.textContent = 'Wird registriert...';
 
             try {
+                var notifyNew = document.getElementById('registerNotifyNew').checked;
+                var wantsNewsletter = document.getElementById('registerNewsletter').checked;
+
                 const { data, error } = await supabaseClient.auth.signUp({
                     email: email,
                     password: password,
                     options: {
-                        data: { vorname: vorname }
+                        data: {
+                            vorname: vorname,
+                            notify_erfahrungsberichte: notifyNew,
+                            notify_newsletter: wantsNewsletter
+                        }
                     }
                 });
 
@@ -3118,8 +3125,6 @@
                 }
 
                 // Newsletter-Eintragung (nicht-blockierend, parallel zur Registrierung)
-                var notifyNew = document.getElementById('registerNotifyNew').checked;
-                var wantsNewsletter = document.getElementById('registerNewsletter').checked;
                 if (notifyNew || wantsNewsletter) {
                     subscribeToMailPoet(email, vorname, notifyNew, wantsNewsletter);
                 }
@@ -3504,6 +3509,9 @@
                 if (currentUser) {
                     document.getElementById('settingsName').value = currentUser.name || '';
                     document.getElementById('settingsCurrentEmail').value = currentUser.email || '';
+                    // Restore checkbox states from user metadata
+                    document.getElementById('settingsNotifyNew').checked = currentUser.notify_erfahrungsberichte || false;
+                    document.getElementById('settingsNewsletter').checked = currentUser.notify_newsletter || false;
                 }
                 document.getElementById('settingsNewEmail').value = '';
                 document.getElementById('settingsNewPassword').value = '';
@@ -3530,43 +3538,66 @@
                 var notifyNew = document.getElementById('settingsNotifyNew').checked;
                 var newsletter = document.getElementById('settingsNewsletter').checked;
 
-                if (!notifyNew && !newsletter) {
-                    showSettingsMsg('newsletterMsg', 'error', 'Bitte mindestens eine Option auswählen.');
-                    return;
-                }
-
                 if (!currentUser || !currentUser.email) {
                     showSettingsMsg('newsletterMsg', 'error', 'Keine E-Mail-Adresse gefunden.');
                     return;
                 }
 
+                // Pruefen ob sich etwas geaendert hat
+                var erfahrungenChanged = notifyNew !== (currentUser.notify_erfahrungsberichte || false);
+                var newsletterChanged = newsletter !== (currentUser.notify_newsletter || false);
+
+                if (!erfahrungenChanged && !newsletterChanged) {
+                    showSettingsMsg('newsletterMsg', 'success', 'Keine Änderungen vorgenommen.');
+                    return;
+                }
+
                 btn.disabled = true;
-                btn.textContent = 'Wird eingetragen...';
+                btn.textContent = 'Wird gespeichert...';
                 try {
+                    // Nur geaenderte Listen an die API senden
+                    var listsPayload = {};
+                    if (erfahrungenChanged) listsPayload.erfahrungsberichte = notifyNew;
+                    if (newsletterChanged) listsPayload.newsletter = newsletter;
+
                     var response = await fetch(NEWSLETTER_ENDPOINT, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             email: currentUser.email,
                             vorname: currentUser.name || '',
-                            lists: {
-                                erfahrungsberichte: notifyNew,
-                                newsletter: newsletter
-                            }
+                            lists: listsPayload
                         })
                     });
 
                     if (!response.ok) {
                         var errData = await response.json().catch(function() { return {}; });
-                        throw new Error(errData.message || 'Fehler beim Eintragen');
+                        throw new Error(errData.message || 'Fehler beim Speichern');
                     }
 
+                    // Zustand in Supabase user_metadata speichern
+                    await supabaseClient.auth.updateUser({
+                        data: {
+                            notify_erfahrungsberichte: notifyNew,
+                            notify_newsletter: newsletter
+                        }
+                    });
+
+                    // currentUser aktualisieren
+                    currentUser.notify_erfahrungsberichte = notifyNew;
+                    currentUser.notify_newsletter = newsletter;
+
+                    // Erfolgsmeldung
                     var parts = [];
-                    if (notifyNew) parts.push('Erfahrungsberichte-Updates');
-                    if (newsletter) parts.push('Newsletter');
-                    showSettingsMsg('newsletterMsg', 'success', 'Eingetragen: ' + parts.join(' & '));
+                    if (erfahrungenChanged) {
+                        parts.push(notifyNew ? 'Erfahrungsberichte-Updates aktiviert' : 'Erfahrungsberichte-Updates deaktiviert');
+                    }
+                    if (newsletterChanged) {
+                        parts.push(newsletter ? 'Newsletter abonniert' : 'Newsletter abbestellt');
+                    }
+                    showSettingsMsg('newsletterMsg', 'success', parts.join('. ') + '.');
                 } catch (err) {
-                    showSettingsMsg('newsletterMsg', 'error', 'Eintragung fehlgeschlagen. Versuche es später erneut oder melde dich auf frequenzshop.com an.');
+                    showSettingsMsg('newsletterMsg', 'error', 'Speichern fehlgeschlagen. Versuche es später erneut.');
                     console.warn('Newsletter settings save failed:', err.message);
                 } finally {
                     btn.disabled = false;
@@ -3728,7 +3759,9 @@
                         currentUser = {
                             id: session.user.id,
                             email: session.user.email,
-                            name: session.user.user_metadata?.vorname || session.user.email.split('@')[0]
+                            name: session.user.user_metadata?.vorname || session.user.email.split('@')[0],
+                            notify_erfahrungsberichte: session.user.user_metadata?.notify_erfahrungsberichte || false,
+                            notify_newsletter: session.user.user_metadata?.notify_newsletter || false
                         };
                         showApp(currentUser);
                     } else {
@@ -3749,7 +3782,9 @@
                     currentUser = {
                         id: session.user.id,
                         email: session.user.email,
-                        name: session.user.user_metadata?.vorname || session.user.email.split('@')[0]
+                        name: session.user.user_metadata?.vorname || session.user.email.split('@')[0],
+                        notify_erfahrungsberichte: session.user.user_metadata?.notify_erfahrungsberichte || false,
+                        notify_newsletter: session.user.user_metadata?.notify_newsletter || false
                     };
                     showApp(currentUser);
                 } else {
