@@ -185,8 +185,8 @@
         body.dark-mode .deeplink-card {
             background: var(--card-bg);
         }
-        body.dark-mode .deeplink-card .dl-fade::after {
-            background: linear-gradient(transparent, var(--card-bg));
+        body.dark-mode .deeplink-card .dl-meta span {
+            background: var(--bg);
         }
         body.dark-mode .deeplink-preview {
             background: var(--bg);
@@ -1985,7 +1985,7 @@
             opacity: 1;
         }
 
-        /* DEEP LINK PREVIEW (unauthenticated) */
+        /* DEEP LINK: Full report view (unauthenticated) */
         .deeplink-preview {
             position: fixed;
             top: 0;
@@ -1995,31 +1995,46 @@
             z-index: 9998;
             background: var(--bg);
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             padding: 20px;
+            overflow-y: auto;
         }
 
         .deeplink-card {
+            position: relative;
             background: #fff;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-            max-width: 520px;
+            max-width: 640px;
             width: 100%;
             padding: 32px;
-            text-align: center;
+            margin: 20px 0 40px;
         }
 
-        .deeplink-card .dl-logo {
-            height: 40px;
-            margin-bottom: 16px;
+        .deeplink-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 4px 8px;
+            line-height: 1;
+        }
+
+        .deeplink-close:hover {
+            color: var(--text-dark);
         }
 
         .deeplink-card .dl-name {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--primary-dark);
             margin-bottom: 4px;
+            padding-right: 32px;
         }
 
         .deeplink-card .dl-date {
@@ -2029,32 +2044,47 @@
         }
 
         .deeplink-card .dl-condition {
-            font-size: 16px;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+
+        .deeplink-card .dl-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .deeplink-card .dl-meta span {
+            background: var(--bg);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .deeplink-card .dl-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-dark);
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 28px;
+        }
+
+        .deeplink-card .dl-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .deeplink-card .dl-bottom-text {
+            font-size: 15px;
             font-weight: 600;
             color: var(--text-dark);
             margin-bottom: 12px;
-        }
-
-        .deeplink-card .dl-excerpt {
-            font-size: 14px;
-            line-height: 1.7;
-            color: var(--text-dark);
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .deeplink-card .dl-fade {
-            position: relative;
-        }
-
-        .deeplink-card .dl-fade::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: linear-gradient(transparent, #fff);
         }
 
         .deeplink-card .dl-cta {
@@ -3102,17 +3132,20 @@
         </div>
     </div>
 
-    <!-- DEEP LINK PREVIEW (shown to unauthenticated users) -->
+    <!-- DEEP LINK: Full report view (shown to unauthenticated users) -->
     <div id="deeplinkPreview" class="deeplink-preview" style="display:none;">
         <div class="deeplink-card">
+            <button type="button" class="deeplink-close" id="dlCloseBtn">&times;</button>
             <div class="dl-name" id="dlName"></div>
             <div class="dl-date" id="dlDate"></div>
             <div class="dl-condition" id="dlCondition"></div>
-            <div class="dl-fade">
-                <div class="dl-excerpt" id="dlExcerpt"></div>
+            <div class="dl-meta" id="dlMeta"></div>
+            <div class="dl-text" id="dlText"></div>
+            <div class="dl-bottom">
+                <div class="dl-bottom-text">Entdecke ueber 1.200 weitere Erfahrungsberichte</div>
+                <button type="button" class="dl-cta" id="dlCtaBtn">Kostenlos registrieren</button>
+                <div class="dl-sub">Bereits registriert? <a href="#" id="dlLoginLink" style="color:var(--primary);font-weight:600;">Anmelden</a></div>
             </div>
-            <button type="button" class="dl-cta" id="dlCtaBtn">Kostenlos registrieren, um weiterzulesen</button>
-            <div class="dl-sub">Bereits registriert? <a href="#" id="dlLoginLink" style="color:var(--primary);font-weight:600;">Anmelden</a></div>
         </div>
     </div>
 
@@ -4824,17 +4857,39 @@
                 document.getElementById('dlDate').textContent = entry.date_original || '';
                 document.getElementById('dlCondition').textContent = entry.condition || '';
 
-                // Show first ~200 chars of text
-                var excerpt = (entry.full_text || '').substring(0, 200);
-                if ((entry.full_text || '').length > 200) excerpt += '...';
-                document.getElementById('dlExcerpt').textContent = excerpt;
+                // Meta tags (Produkt, Indikation, Erfolg)
+                var metaEl = document.getElementById('dlMeta');
+                var metaParts = [];
+                if (entry.produkt && entry.produkt.length > 0) {
+                    metaParts.push('<span>Produkt: ' + entry.produkt.map(function(p) { return escapeHtml(p); }).join(', ') + '</span>');
+                }
+                if (entry.indikation && entry.indikation.length > 0) {
+                    metaParts.push('<span>Indikation: ' + entry.indikation.map(function(i) { return escapeHtml(i); }).join(', ') + '</span>');
+                }
+                if (entry.behandlungserfolg) {
+                    metaParts.push('<span>Erfolg: ' + escapeHtml(entry.behandlungserfolg) + '</span>');
+                }
+                metaEl.innerHTML = metaParts.join('');
+
+                // Full text
+                document.getElementById('dlText').textContent = entry.full_text || '';
 
                 preview.style.display = 'flex';
 
-                // CTA button: scroll to and focus register form
+                // Close button: dismiss preview, show normal auth flow
+                document.getElementById('dlCloseBtn').onclick = function() {
+                    preview.style.display = 'none';
+                    pendingDeepLinkId = null;
+                    // Clean URL
+                    history.replaceState({}, '', window.location.pathname);
+                    // Show normal auth flow
+                    var authScreen = document.getElementById('authScreen');
+                    if (authScreen) authScreen.classList.add('visible');
+                };
+
+                // CTA button: go to register form
                 document.getElementById('dlCtaBtn').onclick = function() {
                     preview.style.display = 'none';
-                    // Switch to register tab if auth is showing
                     var registerTab = document.querySelector('.auth-tab[data-tab="register"]');
                     if (registerTab) registerTab.click();
                     var authScreen = document.getElementById('authScreen');
