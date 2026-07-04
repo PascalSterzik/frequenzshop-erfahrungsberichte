@@ -218,6 +218,26 @@
         body.dark-mode .theme-toggle:hover {
             color: var(--primary-light);
         }
+        /* Language dropdown - theme-aware (light + dark) */
+        #fsLangSelect {
+            background: var(--card-bg);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px 8px;
+            margin-left: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            line-height: 1.2;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+        #fsLangSelect:hover { border-color: var(--primary); }
+        #fsLangSelect:focus { outline: none; border-color: var(--primary); }
+        #fsLangSelect option {
+            background: var(--card-bg);
+            color: var(--text-dark);
+        }
 
         /* AUTH SCREEN */
         .auth-container {
@@ -2970,7 +2990,7 @@
             <div class="header-content">
                 <div class="header-left">
                     <button type="button" class="theme-toggle" id="themeToggleHeader" aria-label="Dark Mode umschalten"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
-                    <select id="fsLangSelect" aria-label="Language" style="background:transparent;border:1px solid currentColor;border-radius:8px;padding:4px 6px;font:inherit;color:inherit;cursor:pointer;margin-left:6px"><option value="de">DE</option><option value="en">EN</option><option value="fr">FR</option><option value="es">ES</option></select>
+                    <select id="fsLangSelect" aria-label="Language"><option value="de">DE</option><option value="en">EN</option><option value="fr">FR</option><option value="es">ES</option></select>
                 </div>
                 <div class="header-center">
                     <a href="https://frequenzshop.com" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center">
