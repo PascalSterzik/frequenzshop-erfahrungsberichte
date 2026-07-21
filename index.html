@@ -4823,7 +4823,12 @@
             // Find entry by notion_id
             function findEntryByNotionId(notionId) {
                 if (!notionId || !DATA || !DATA.entries) return null;
-                return DATA.entries.find(function(e) { return e.notion_id === notionId; }) || null;
+                // Deep links use ?id=. Historically that was matched against notion_id, which is
+                // a UUID and null for every entry added after the Notion import (530 of 1274), so
+                // ?id=1271 could never resolve. Match the numeric entry id as well.
+                return DATA.entries.find(function(e) { return e.notion_id === notionId; })
+                    || DATA.entries.find(function(e) { return String(e.id) === String(notionId); })
+                    || null;
             }
 
             // Build share URL for a specific entry
