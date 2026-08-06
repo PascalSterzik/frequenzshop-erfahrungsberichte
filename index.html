@@ -3181,11 +3181,11 @@
                 <div class="modal-date"></div>
                 <div class="modal-condition"></div>
                 <div class="modal-meta">
-                    <div class="modal-meta-item" id="metaItemProdukt"><span class="modal-meta-label">Produkt:</span> <span class="modal-meta-value" id="metaValProdukt"></span></div>
                     <div class="modal-meta-item" id="metaItemIndikation"><span class="modal-meta-label">Beschwerden:</span> <span class="modal-meta-value" id="metaValIndikation"></span></div>
-                    <div class="modal-meta-item" id="metaItemKorperteil"><span class="modal-meta-label">Körperteil:</span> <span class="modal-meta-value" id="metaValKorperteil"></span></div>
                     <div class="modal-meta-item" id="metaItemBehandlungstyp"><span class="modal-meta-label">Behandlungstyp:</span> <span class="modal-meta-value" id="metaValBehandlungstyp"></span></div>
+                    <div class="modal-meta-item" id="metaItemKorperteil"><span class="modal-meta-label">Körperteil:</span> <span class="modal-meta-value" id="metaValKorperteil"></span></div>
                     <div class="modal-meta-item" id="metaItemErfolg"><span class="modal-meta-label">Erfolg:</span> <span class="modal-meta-value" id="metaValErfolg"></span></div>
+                    <div class="modal-meta-item" id="metaItemProdukt"><span class="modal-meta-label">Produkt:</span> <span class="modal-meta-value" id="metaValProdukt"></span></div>
                 </div>
                 <div class="modal-text"></div>
                 <div class="modal-share-bar">
@@ -4776,11 +4776,11 @@
             }
             
             [
-                ['Produkt',        entry.produkt && entry.produkt.length > 0 ? entry.produkt.join(', ') : ''],
                 ['Indikation',     entry.indikation && entry.indikation.length > 0 ? fsLarr(entry.indikation).join(', ') : ''],
-                ['Korperteil',     entry.korperteil && entry.korperteil.length > 0 ? fsLarr(entry.korperteil).join(', ') : ''],
                 ['Behandlungstyp', entry.behandlungstyp && entry.behandlungstyp.length > 0 ? fsLarr(entry.behandlungstyp).join(', ') : ''],
-                ['Erfolg',         entry.behandlungserfolg ? fsL(entry.behandlungserfolg) : '']
+                ['Korperteil',     entry.korperteil && entry.korperteil.length > 0 ? fsLarr(entry.korperteil).join(', ') : ''],
+                ['Erfolg',         entry.behandlungserfolg ? fsL(entry.behandlungserfolg) : ''],
+                ['Produkt',        entry.produkt && entry.produkt.length > 0 ? entry.produkt.join(', ') : '']
             ].forEach(function(r) {
                 var val = document.getElementById('metaVal' + r[0]);
                 var item = document.getElementById('metaItem' + r[0]);
