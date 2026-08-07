@@ -1818,9 +1818,20 @@
         .modal-topbar-left {
             display: flex;
             align-items: center;
-            gap: 10px;
             flex: 0 0 auto;
             min-width: 0;
+            position: relative;
+        }
+
+        /* Out of the layout flow: at opacity 0 it still reserved ~77px, which pushed
+           the centred title off-centre and ate the title's room on mobile. */
+        .modal-topbar-left .share-confirm {
+            position: absolute;
+            left: calc(100% + 8px);
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            pointer-events: none;
         }
 
         /* Keeps the reader oriented once the report's own heading is scrolled away */
@@ -2853,7 +2864,8 @@
             .card-image-container img { height: 120px; }
             .modal-image-item img { max-height: 260px; }
             .modal-images.inline-gallery { padding: 10px; gap: 8px; }
-            .modal-topbar { margin: 0 -16px 16px; padding: 8px 16px; }
+            .modal-topbar { margin: 0 -16px 16px; padding: 8px 16px; gap: 8px; }
+            .modal-topbar-title { padding: 0 4px; font-size: 0.82rem; }
             .modal-shop-btn { width: 100%; justify-content: center; }
         }
     </style>
