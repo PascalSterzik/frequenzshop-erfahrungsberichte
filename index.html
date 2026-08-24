@@ -2903,10 +2903,6 @@
             <select id="sidepanelFilterKorperteil"><option value="">Alle Körperteile</option></select>
         </div>
         <div class="sidepanel-filter-group">
-            <label>Behandlungserfolg</label>
-            <select id="sidepanelFilterBehandlungserfolg"><option value="">Alle Erfolge</option></select>
-        </div>
-        <div class="sidepanel-filter-group">
             <label>Produkt</label>
             <select id="sidepanelFilterProdukt"><option value="">Alle Produkte</option></select>
         </div>
@@ -3086,7 +3082,6 @@
                 <select id="stickyFilterIndikation"><option value="">Alle Beschwerden</option></select>
                 <select id="stickyFilterBehandlungstyp"><option value="">Alle Typen</option></select>
                 <select id="stickyFilterKorperteil"><option value="">Alle Körperteile</option></select>
-                <select id="stickyFilterBehandlungserfolg"><option value="">Alle Erfolge</option></select>
                 <select id="stickyFilterProdukt"><option value="">Alle Produkte</option></select>
             </div>
             <div class="sticky-options-row">
@@ -3206,12 +3201,6 @@
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Behandlungserfolg</label>
-                        <select id="filterBehandlungserfolg" class="filter-select">
-                            <option value="">Alle Erfolge</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
                         <label>Produkt</label>
                         <select id="filterProdukt" class="filter-select">
                             <option value="">Alle Produkte</option>
@@ -3313,7 +3302,6 @@
                     <div class="modal-meta-item" id="metaItemIndikation"><span class="modal-meta-label">Beschwerden:</span> <span class="modal-meta-value" id="metaValIndikation"></span></div>
                     <div class="modal-meta-item" id="metaItemBehandlungstyp"><span class="modal-meta-label">Behandlungstyp:</span> <span class="modal-meta-value" id="metaValBehandlungstyp"></span></div>
                     <div class="modal-meta-item" id="metaItemKorperteil"><span class="modal-meta-label">Körperteil:</span> <span class="modal-meta-value" id="metaValKorperteil"></span></div>
-                    <div class="modal-meta-item" id="metaItemErfolg"><span class="modal-meta-label">Erfolg:</span> <span class="modal-meta-value" id="metaValErfolg"></span></div>
                     <div class="modal-meta-item" id="metaItemProdukt"><span class="modal-meta-label">Produkt:</span> <span class="modal-meta-value" id="metaValProdukt"></span></div>
                 </div>
                 <div class="modal-text"></div>
@@ -4481,7 +4469,6 @@
             const korperteile = new Set();
             const produkte = new Set();
             const behandlungstypen = new Set();
-            const behandlungserfolge = new Set();
 
             DATA.entries.forEach(entry => {
                 if (entry.indikation) {
@@ -4500,16 +4487,12 @@
                         behandlungstypen.add(entry.behandlungstyp);
                     }
                 }
-                if (entry.behandlungserfolg) {
-                    behandlungserfolge.add(entry.behandlungserfolg);
-                }
             });
 
             populateSelect('filterIndikation', Array.from(indikations).sort());
             populateSelect('filterKorperteil', Array.from(korperteile).sort());
             populateSelect('filterProdukt', Array.from(produkte).sort());
             populateSelect('filterBehandlungstyp', Array.from(behandlungstypen).sort());
-            populateSelect('filterBehandlungserfolg', Array.from(behandlungserfolge).sort());
             
             // Initialize multi-select dropdowns
             initializeMultiSelects();
@@ -4533,7 +4516,7 @@
 
         // ===== MULTI-SELECT FUNCTIONS (outer scope, used by populateFilters + IIFE) =====
         function initializeMultiSelects() {
-            var filterIds = ['filterIndikation', 'filterKorperteil', 'filterProdukt', 'filterBehandlungstyp', 'filterBehandlungserfolg'];
+            var filterIds = ['filterIndikation', 'filterKorperteil', 'filterProdukt', 'filterBehandlungstyp'];
             filterIds.forEach(id => {
                 var selectEl = document.getElementById(id);
                 if (!selectEl) return;
@@ -4631,7 +4614,7 @@
         }
 
         function syncAllMultiSelects() {
-            var filterIds = ['filterIndikation', 'filterKorperteil', 'filterProdukt', 'filterBehandlungstyp', 'filterBehandlungserfolg'];
+            var filterIds = ['filterIndikation', 'filterKorperteil', 'filterProdukt', 'filterBehandlungstyp'];
             filterIds.forEach(id => {
                 var filterName = id.replace('filter', '').toLowerCase();
                 var wrapper = document.getElementById('multiselect-' + id);
@@ -4718,8 +4701,7 @@
                     const fieldName = filterName === 'indikation' ? 'indikation' :
                                     filterName === 'korperteil' ? 'korperteil' :
                                     filterName === 'produkt' ? 'produkt' :
-                                    filterName === 'behandlungstyp' ? 'behandlungstyp' :
-                                    filterName === 'behandlungserfolg' ? 'behandlungserfolg' : null;
+                                    filterName === 'behandlungstyp' ? 'behandlungstyp' : null;
 
                     if (!fieldName) return true;
                     if (!filterValues || filterValues.length === 0) return true;
@@ -4783,7 +4765,6 @@
                 if (entry.indikation) entry.indikation.forEach(i => { if (i) tags.push('<span class="card-tag tag-indikation">' + fsL(i) + '</span>'); });
                 if (entry.korperteil) entry.korperteil.forEach(k => { if (k) tags.push('<span class="card-tag">' + fsL(k) + '</span>'); });
                     if (entry.behandlungstyp) entry.behandlungstyp.forEach(b => { if (b) tags.push('<span class="card-tag">' + fsL(b) + '</span>'); });
-                    if (entry.behandlungserfolg) tags.push('<span class="card-tag tag-erfolg">' + fsL(entry.behandlungserfolg) + '</span>');
                 
                 card.innerHTML = `
                     <div class="card-header">
@@ -4973,7 +4954,6 @@
                 ['Indikation',     entry.indikation && entry.indikation.length > 0 ? fsLarr(entry.indikation).join(', ') : ''],
                 ['Behandlungstyp', entry.behandlungstyp && entry.behandlungstyp.length > 0 ? fsLarr(entry.behandlungstyp).join(', ') : ''],
                 ['Korperteil',     entry.korperteil && entry.korperteil.length > 0 ? fsLarr(entry.korperteil).join(', ') : ''],
-                ['Erfolg',         entry.behandlungserfolg ? fsL(entry.behandlungserfolg) : ''],
                 ['Produkt',        entry.produkt && entry.produkt.length > 0 ? entry.produkt.join(', ') : '']
             ].forEach(function(r) {
                 var val = document.getElementById('metaVal' + r[0]);
@@ -5156,9 +5136,6 @@
                 if (entry.indikation && entry.indikation.length > 0) {
                     metaParts.push('<span>Beschwerden: ' + entry.indikation.map(function(i) { return escapeHtml(i); }).join(', ') + '</span>');
                 }
-                if (entry.behandlungserfolg) {
-                    metaParts.push('<span>Erfolg: ' + escapeHtml(entry.behandlungserfolg) + '</span>');
-                }
                 metaEl.innerHTML = metaParts.join('');
 
                 // Full text
@@ -5252,7 +5229,7 @@
             var sidepanelCount = document.getElementById('sidepanelCount');
 
             // Filter element mappings: [sticky, sidepanel, main]
-            var filterNames = ['Indikation', 'Korperteil', 'Produkt', 'Behandlungstyp', 'Behandlungserfolg'];
+            var filterNames = ['Indikation', 'Korperteil', 'Produkt', 'Behandlungstyp'];
             var filterTriples = filterNames.map(function(name) {
                 return {
                     sticky: document.getElementById('stickyFilter' + name),
